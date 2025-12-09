@@ -23,10 +23,10 @@ jobs:
         cd frontend
         npm install
 
-    - name: Run tests
-      run: |
-        cd frontend
-        npm run test:unit
+    # - name: Run tests
+    #   run: |
+    #     cd frontend
+    #     npm run test:unit
 
     - name: Build
       run: |

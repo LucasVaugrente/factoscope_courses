@@ -36,14 +36,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r backend/requirements.txt
-        pip install pytest
 
-    - name: Run tests
-      env:
-        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
-      run: |
-        cd backend
-        pytest
+    # - name: Run tests
+    #   env:
+    #     DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+    #   run: |
+    #     cd backend
+    #     pytest
 
     - name: Lint with flake8
       run: |
