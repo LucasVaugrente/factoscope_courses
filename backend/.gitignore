@@ -10,6 +10,6 @@ __pycache__/
 *.sqlite3
 *.log
 .vscode-terminal
-.venv
+venv
 .env.local
 .env.*.local
