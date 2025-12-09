@@ -1,0 +1,15 @@
+.vscode
+.idea
+node_modules
+dist
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+.vscode-terminal
+.venv
+.env.local
+.env.*.local
