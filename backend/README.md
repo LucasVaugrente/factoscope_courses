@@ -1,3 +1,7 @@
+creer .env 
+avec le contenu suivant:
+DATABASE_URL=mysql://user:password@db:3307/factscope
+
 Exécution avec Docker 
 
 
