@@ -18,7 +18,39 @@
           <p class="subtitle">Cours issus de la base MariaDB</p>
         </div>
         <div class="actions">
+          <button class="primary" @click="showUpload = true">Ajouter cours</button>
           <button class="ghost" @click="fetchCourses" :disabled="isLoading">Actualiser</button>
+        </div>
+      </div>
+
+      <div v-if="showUpload" class="modal-backdrop">
+        <div class="modal">
+          <h3>Ajouter un cours via CSV</h3>
+          <div class="form-grid">
+            <label>
+              <span>Titre (optionnel si 3ème colonne)</span>
+              <input class="input" v-model="formTitre" placeholder="Titre du cours" />
+            </label>
+            <label>
+              <span>Description (optionnel)</span>
+              <textarea class="textarea" rows="3" v-model="formDescription" placeholder="Description du cours"></textarea>
+            </label>
+            <label>
+              <span>Thématique associée (optionnel)</span>
+              <input class="input" v-model="formThematique" placeholder="Nom de la thématique" />
+            </label>
+            <label>
+              <span>Fichier CSV</span>
+              <input class="input" type="file" accept=".csv,text/csv" @change="onFileChange" />
+            </label>
+          </div>
+          <div v-if="uploadError" class="error-bar" style="margin-top:10px;">{{ uploadError }}</div>
+          <div class="card-actions" style="margin-top:16px;">
+            <button class="ghost" @click="closeUpload" :disabled="uploading">Annuler</button>
+            <button class="primary" @click="submitUpload" :disabled="!selectedFile || uploading">
+              {{ uploading ? 'Import en cours...' : 'Importer' }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -57,6 +89,13 @@ const userName = ref('')
 const courses = ref([])
 const isLoading = ref(false)
 const error = ref('')
+const showUpload = ref(false)
+const uploading = ref(false)
+const uploadError = ref('')
+const selectedFile = ref(null)
+const formTitre = ref('')
+const formDescription = ref('')
+const formThematique = ref('')
 
 const apiBase = 'http://localhost:8000'
 
@@ -77,6 +116,50 @@ const fetchCourses = async () => {
 
 const viewCours = (courseId) => {
   router.push(`/cours/${courseId}`)
+}
+
+const onFileChange = (e) => {
+  const files = e.target.files
+  selectedFile.value = files && files[0] ? files[0] : null
+}
+
+const closeUpload = () => {
+  showUpload.value = false
+  uploadError.value = ''
+  uploading.value = false
+  selectedFile.value = null
+  formTitre.value = ''
+  formDescription.value = ''
+  formThematique.value = ''
+}
+
+const submitUpload = async () => {
+  if (!selectedFile.value) return
+  uploading.value = true
+  uploadError.value = ''
+  try {
+    const fd = new FormData()
+    fd.append('file', selectedFile.value)
+    if (formTitre.value) fd.append('titre', formTitre.value)
+    if (formDescription.value) fd.append('description', formDescription.value)
+    if (formThematique.value) fd.append('thematique', formThematique.value)
+
+    const res = await fetch(`${apiBase}/api/cours/upload`, {
+      method: 'POST',
+      body: fd
+    })
+    if (!res.ok) {
+      const msg = await res.json().catch(() => null)
+      throw new Error((msg && (msg.detail || msg.message)) || 'Échec de l\'import du cours')
+    }
+    await res.json()
+    closeUpload()
+    await fetchCourses()
+  } catch (err) {
+    uploadError.value = err.message || 'Erreur lors de l\'import'
+  } finally {
+    uploading.value = false
+  }
 }
 
 onMounted(() => {
@@ -183,6 +266,32 @@ h2 {
 .actions {
   display: flex;
   gap: 10px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal {
+  width: 100%;
+  max-width: 640px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .dashboard-grid {
