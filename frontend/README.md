@@ -36,3 +36,10 @@ npm run dev
 ```sh
 npm run build
 ```
+Exécution avec Docker 
+
+
+Dans le dossier racine du projet (factoscope_courses):
+
+docker compose up --build
+Frontend: http://localhost:5173/

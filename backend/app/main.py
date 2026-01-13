@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi import UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+import csv
+import io
 
 from . import models, schemas
 from .database import engine, get_db
@@ -75,6 +78,87 @@ def create_cours(cours: schemas.CoursCreate, db: Session = Depends(get_db)):
     db.add(db_cours)
     db.commit()
     db.refresh(db_cours)
+    return db_cours
+
+@app.post("/api/cours/upload", response_model=schemas.Cours)
+async def upload_cours_csv(
+    file: UploadFile = File(...),
+    titre: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    thematique: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+):
+    """Uploader un CSV pour créer un cours et ses pages.
+
+    Format attendu (séparateur ';'):
+    Colonne 1: contenu/description de la page
+    Colonne 2: URLs séparées par '@' (stockées telles quelles dans 'medias')
+    Colonne 3: titre du cours (si non fourni via champ 'titre')
+    Une éventuelle première ligne d'entête sera ignorée si elle contient des libellés.
+    """
+    if file.content_type not in ("text/csv", "application/vnd.ms-excel", "application/csv", "text/plain"):
+        raise HTTPException(status_code=400, detail="Type de fichier non supporté. Uploadez un CSV.")
+
+    try:
+        raw = await file.read()
+        text = raw.decode("utf-8")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Impossible de lire le fichier CSV")
+
+    reader = csv.reader(io.StringIO(text), delimiter=';')
+    rows = [row for row in reader if any((cell or '').strip() for cell in row)]
+    if not rows:
+        raise HTTPException(status_code=400, detail="CSV vide")
+
+    # Nouvelle convention: 1ère ligne = info du cours: titre; description; thematique
+    first_row = rows[0]
+    first_cell = first_row[0].strip() if len(first_row) >= 1 else None
+    course_title = titre or first_cell
+    if not course_title:
+        raise HTTPException(status_code=400, detail="Titre du cours manquant. La 1ère ligne du CSV doit contenir le titre ou renseignez le champ 'titre'.")
+
+    inferred_description = (first_row[1].strip() if len(first_row) >= 2 and first_row[1] is not None else "")
+    course_description = description if (description is not None and description != "") else inferred_description
+
+    # Traiter la thématique (module) optionnelle
+    module_id = None
+    inferred_thematique = (first_row[2].strip() if len(first_row) >= 3 and first_row[2] is not None else "")
+    effective_thematique = (thematique if (thematique is not None and thematique.strip()) else inferred_thematique)
+    if effective_thematique and effective_thematique.strip():
+        existing_module = db.query(models.Module).filter(models.Module.titre == effective_thematique.strip()).first()
+        if not existing_module:
+            new_module = models.Module(titre=effective_thematique.strip(), description="")
+            db.add(new_module)
+            db.commit()
+            db.refresh(new_module)
+            module_id = new_module.id
+        else:
+            module_id = existing_module.id
+
+    # Créer le cours
+    db_cours = models.Cours(
+        titre=course_title,
+        description=course_description,
+        contenu=course_title,
+        id_module=module_id,
+    )
+    db.add(db_cours)
+    db.commit()
+    db.refresh(db_cours)
+
+    # Créer les pages: à partir de la 2ème ligne
+    created_pages = 0
+    for row in rows[1:]:
+        # S'assurer d'avoir au moins 1 ou 2 colonnes
+        if not row:
+            continue
+        page_desc = row[0].strip() if len(row) >= 1 else ""
+        page_medias = row[1].strip() if len(row) >= 2 else ""
+        page = models.Page(description=page_desc, medias=page_medias, est_vue=0, id_cours=db_cours.id)
+        db.add(page)
+        created_pages += 1
+    db.commit()
+
     return db_cours
 
 @app.put("/api/cours/{cours_id}", response_model=schemas.Cours)
