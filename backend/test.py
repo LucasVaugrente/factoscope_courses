@@ -18,37 +18,73 @@ from app import models  # type: ignore
 def seed_cours():
     db = SessionLocal()
     try:
-        # Create table metadata if not already created (safe/no-op if exists)
+        # Ensure tables exist
         models.Base.metadata.create_all(bind=db.get_bind())
 
-        # Insert two demo cours if they don't already exist (by title)
-        titles = {"Cours 1", "Cours 2"}
-        existing_titles = {
-            c.titre for c in db.query(models.Cours).filter(models.Cours.titre.in_(titles)).all()
-        }
-        to_create = []
-        if "Cours 1" not in existing_titles:
-            to_create.append(
-                models.Cours(
-                    titre="Cours 1",
-                    description="Description cours 1",
-                    contenu="Contenu cours 1",
+        # Fetch up to two existing cours (ordered by id)
+        existing = db.query(models.Cours).order_by(models.Cours.id).limit(2).all()
+
+        if not existing:
+            # Create two cours with modified titre/description/contenu
+            created = []
+            for i in range(1, 3):
+                c = models.Cours(
+                    titre=f"TEST Cours {i} — Titre ",
+                    description=f"TEST Description pour le cours {i}",
+                    contenu=f"TEST Contenu du cours {i}",
                 )
-            )
-        if "Cours 2" not in existing_titles:
-            to_create.append(
-                models.Cours(
-                    titre="Cours 2",
-                    description="Description cours 2",
-                    contenu="Contenu cours 2",
-                )
-            )
-        if to_create:
-            db.add_all(to_create)
+                db.add(c)
+                created.append(c)
             db.commit()
-            print(f"Inserted {len(to_create)} cours")
+            for c in created:
+                db.refresh(c)
+            cours_to_process = created
+            print("Created 2 cours with modified content")
         else:
-            print("No cours inserted (already present)")
+            # Update the first two existing cours' fields
+            cours_to_process = []
+            for idx, c in enumerate(existing):
+                c.titre = f"TEST 2 Cours {idx+1} Titre"
+                c.description = f"TEST 2Description pour le cours {idx+1}"
+                c.contenu = f"TEST 2 Contenu du cours {idx+1}"
+                cours_to_process.append(c)
+            db.commit()
+            # refresh objects
+            for c in cours_to_process:
+                db.refresh(c)
+            print(f"Updated {len(cours_to_process)} existing cours")
+
+        # For each cours ensure there are 3 pages and at least one QCM
+        for c in cours_to_process:
+            # reload fresh instance to access relationships
+            fresh = db.query(models.Cours).filter(models.Cours.id == c.id).one()
+
+            # Ensure 3 pages
+            current_pages = list(fresh.pages or [])
+            for p_index in range(len(current_pages) + 1, 4):
+                page = models.Page(
+                    description=f"Page {p_index} du {fresh.titre}: contenu de démonstration.",
+                    medias="",
+                    est_vue=0,
+                    id_cours=fresh.id,
+                )
+                db.add(page)
+
+            # Ensure at least one QCM
+            if not (fresh.qcms and len(fresh.qcms) > 0):
+                q = models.QCM(
+                    question=f"Quelle est la bonne réponse pour {fresh.titre} ?",
+                    rep1="Option A",
+                    rep2="Option B",
+                    rep3="Option C",
+                    rep4="Option D",
+                    soluce=1,
+                    id_cours=fresh.id,
+                )
+                db.add(q)
+
+        db.commit()
+        print("Ensured 3 pages and 1 QCM for each cours processed")
     finally:
         with suppress(Exception):
             db.close()
