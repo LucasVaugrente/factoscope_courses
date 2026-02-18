@@ -7,6 +7,9 @@ from typing import List, Optional
 import csv
 import io
 
+# Import des routeurs
+from .routes import text_a_true
+
 from . import models, schemas
 from .database import engine, get_db
 
@@ -80,85 +83,81 @@ def create_cours(cours: schemas.CoursCreate, db: Session = Depends(get_db)):
     db.refresh(db_cours)
     return db_cours
 
+from fastapi import UploadFile, File, Depends, HTTPException, Form
+from sqlalchemy.orm import Session
+import csv, io
+
 @app.post("/api/cours/upload", response_model=schemas.Cours)
 async def upload_cours_csv(
     file: UploadFile = File(...),
-    titre: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    thematique: Optional[str] = Form(None),
+    titre: str = Form(None),
+    description: str = Form(None),
+    thematique: str = Form(None),
     db: Session = Depends(get_db),
 ):
-    """Uploader un CSV pour créer un cours et ses pages.
+    def clean(x):
+        return (x or "").strip()
 
-    Format attendu (séparateur ';'):
-    Colonne 1: contenu/description de la page
-    Colonne 2: URLs séparées par '@' (stockées telles quelles dans 'medias')
-    Colonne 3: titre du cours (si non fourni via champ 'titre')
-    Une éventuelle première ligne d'entête sera ignorée si elle contient des libellés.
-    """
-    if file.content_type not in ("text/csv", "application/vnd.ms-excel", "application/csv", "text/plain"):
-        raise HTTPException(status_code=400, detail="Type de fichier non supporté. Uploadez un CSV.")
-
-    try:
-        raw = await file.read()
-        text = raw.decode("utf-8")
-    except Exception:
-        raise HTTPException(status_code=400, detail="Impossible de lire le fichier CSV")
+    raw = await file.read()
+    text = raw.decode("utf-8-sig")
 
     reader = csv.reader(io.StringIO(text), delimiter=';')
-    rows = [row for row in reader if any((cell or '').strip() for cell in row)]
+    rows = [row for row in reader if any(clean(c) for c in row)]
+
     if not rows:
-        raise HTTPException(status_code=400, detail="CSV vide")
+        raise HTTPException(400, "CSV vide")
 
-    # Nouvelle convention: 1ère ligne = info du cours: titre; description; thematique
-    first_row = rows[0]
-    first_cell = first_row[0].strip() if len(first_row) >= 1 else None
-    course_title = titre or first_cell
-    if not course_title:
-        raise HTTPException(status_code=400, detail="Titre du cours manquant. La 1ère ligne du CSV doit contenir le titre ou renseignez le champ 'titre'.")
+    is_form_mode = any([clean(titre), clean(description), clean(thematique)])
 
-    inferred_description = (first_row[1].strip() if len(first_row) >= 2 and first_row[1] is not None else "")
-    course_description = description if (description is not None and description != "") else inferred_description
+    first = [clean(c) for c in rows[0]]
+    csv_has_header = len(first) >= 3 and first[0] and first[1] and first[2]
 
-    # Traiter la thématique (module) optionnelle
-    module_id = None
-    inferred_thematique = (first_row[2].strip() if len(first_row) >= 3 and first_row[2] is not None else "")
-    effective_thematique = (thematique if (thematique is not None and thematique.strip()) else inferred_thematique)
-    if effective_thematique and effective_thematique.strip():
-        existing_module = db.query(models.Module).filter(models.Module.titre == effective_thematique.strip()).first()
-        if not existing_module:
-            new_module = models.Module(titre=effective_thematique.strip(), description="")
-            db.add(new_module)
-            db.commit()
-            db.refresh(new_module)
-            module_id = new_module.id
-        else:
-            module_id = existing_module.id
+    if is_form_mode:
+        course_title = clean(titre)
+        course_description = clean(description)
+        course_thematique = clean(thematique)
+        data_rows = rows
+    else:
+        if not csv_has_header:
+            raise HTTPException(400, "CSV invalide")
+        course_title, course_description, course_thematique = first[:3]
+        data_rows = rows[1:]
 
-    # Créer le cours
     db_cours = models.Cours(
         titre=course_title,
         description=course_description,
-        contenu=course_title,
-        id_module=module_id,
+        contenu=course_description,
+        id_module=None
     )
     db.add(db_cours)
     db.commit()
     db.refresh(db_cours)
 
-    # Créer les pages: à partir de la 2ème ligne
     created_pages = 0
-    for row in rows[1:]:
-        # S'assurer d'avoir au moins 1 ou 2 colonnes
-        if not row:
+
+    for row in data_rows:
+        row = [clean(c) for c in row]
+
+        content = row[0] if len(row) >= 1 else ""
+        medias = row[1] if len(row) >= 2 else ""
+
+        if not content and not medias:
             continue
-        page_desc = row[0].strip() if len(row) >= 1 else ""
-        page_medias = row[1].strip() if len(row) >= 2 else ""
-        page = models.Page(description=page_desc, medias=page_medias, est_vue=0, id_cours=db_cours.id)
+
+        page = models.Page(
+            description=content,
+            medias=medias,
+            est_vue=0,
+            id_cours=db_cours.id
+        )
         db.add(page)
         created_pages += 1
-    db.commit()
 
+    if created_pages == 0:
+        db.rollback()
+        raise HTTPException(400, "Aucune page valide")
+
+    db.commit()
     return db_cours
 
 @app.put("/api/cours/{cours_id}", response_model=schemas.Cours)
@@ -333,3 +332,5 @@ def delete_qcm(qcm_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "QCM supprimé avec succès"}
 
+# Inclure le routeur Text à True
+app.include_router(text_a_true.router)
