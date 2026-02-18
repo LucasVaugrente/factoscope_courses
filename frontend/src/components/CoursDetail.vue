@@ -4,8 +4,8 @@
     <div class="header-row">
       <div>
         <p class="eyebrow">Cours</p>
-        <h2>{{ cours?.titre || (isLoadingCours ? 'Chargement...' : 'Cours') }}</h2>
-        <p class="subtitle">{{ cours?.description || '' }}</p>
+        <h2>Titre du cours : {{ cours?.titre || (isLoadingCours ? 'Chargement...' : 'Cours') }}</h2>
+        <p class="subtitle">Description du cours : {{ cours?.description || '' }}</p>
       </div>
 
       <div class="actions">
@@ -71,18 +71,10 @@
             <template v-if="editingPageId === page.id">
               <h3>Modifier la page</h3>
 
-              <textarea
-                v-model="editingForm.description"
-                class="textarea"
-                rows="3"
-                placeholder="Description"
-              ></textarea>
+              <textarea v-model="editingForm.description" class="textarea" rows="3"
+                placeholder="Description"></textarea>
 
-              <input
-                v-model="editingForm.medias"
-                class="input"
-                placeholder="URLs médias séparées par des virgules"
-              />
+              <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des virgules" />
 
               <div class="card-actions">
                 <UiButton variant="ghost" @click="cancelEdit" :disabled="isSaving">Annuler</UiButton>
@@ -119,10 +111,10 @@
 
       <div class="panel-body">
         <div class="dashboard-grid">
-          <!-- Text à True -->
+          <!-- Texte à Trou -->
           <div class="card game-card" @click="openTATViewer">
             <div class="card-icon">✅</div>
-            <h3>Text à True</h3>
+            <h3>Texte à Trou</h3>
             <p class="description">{{ tatQuestions.length }} question(s)</p>
             <p class="meta">Clique pour voir (liste déroulante)</p>
           </div>
@@ -145,30 +137,19 @@
 
         <label class="field">
           <span>Description</span>
-          <textarea
-            v-model="newPageForm.description"
-            class="textarea"
-            rows="3"
-            placeholder="Décrivez le contenu de cette page"
-          ></textarea>
+          <textarea v-model="newPageForm.description" class="textarea" rows="3"
+            placeholder="Décrivez le contenu de cette page"></textarea>
         </label>
 
         <label class="field">
           <span>Médias (URLs séparées par des virgules)</span>
-          <input
-            v-model="newPageForm.medias"
-            class="input"
-            placeholder="https://.../image.jpg, https://.../video.mp4"
-          />
+          <input v-model="newPageForm.medias" class="input"
+            placeholder="https://.../image.jpg, https://.../video.mp4" />
         </label>
 
         <div class="card-actions" style="margin-top: 16px;">
           <UiButton variant="ghost" @click="closeAddModal" :disabled="isSaving">Annuler</UiButton>
-          <UiButton
-            variant="primary"
-            @click="createPage"
-            :disabled="isSaving || !newPageForm.description.trim()"
-          >
+          <UiButton variant="primary" @click="createPage" :disabled="isSaving || !newPageForm.description.trim()">
             {{ isSaving ? 'Création...' : 'Créer la page' }}
           </UiButton>
         </div>
@@ -192,7 +173,7 @@
 
           <button class="game-tile" @click="chooseGame('tat')">
             <div class="game-emoji">✅</div>
-            <div class="game-title">Text à True</div>
+            <div class="game-title">Texte à Trou</div>
             <div class="game-desc">4 réponses + bonne réponse</div>
           </button>
         </div>
@@ -203,10 +184,10 @@
       </div>
     </div>
 
-    <!-- Modal: Upload Text à True -->
+    <!-- Modal: Upload Texte à Trou -->
     <div v-if="showUploadTAT" class="modal-backdrop" @click="closeUploadTAT">
       <div class="modal" @click.stop>
-        <h3>Importer Text à True (CSV)</h3>
+        <h3>Importer Texte à Trou (CSV)</h3>
         <p class="subtitle" style="margin-top:6px;">
           Format : <code>texte;rep1;rep2;rep3;rep4;numero_bonne_reponse</code>
         </p>
@@ -231,12 +212,12 @@
       </div>
     </div>
 
-    <!-- Modal: Viewer Text à True (accordion) -->
+    <!-- Modal: Viewer Texte à Trou (accordion) -->
     <div v-if="showTATViewer" class="modal-backdrop" @click="closeTATViewer">
       <div class="modal modal-big" @click.stop>
         <div class="modal-top">
           <div>
-            <h3 style="margin:0;">Text à True — Questions</h3>
+            <h3 style="margin:0;">Texte à Trou — Questions</h3>
             <p class="subtitle" style="margin:6px 0 0;">
               Clique sur une question pour dérouler les réponses.
             </p>
@@ -258,12 +239,7 @@
         </div>
 
         <div v-else class="tat-accordion" style="margin-top:12px;">
-          <div
-            v-for="(q, i) in tatQuestions"
-            :key="q.id"
-            class="acc-item"
-            :class="{ open: openTATId === q.id }"
-          >
+          <div v-for="(q, i) in tatQuestions" :key="q.id" class="acc-item" :class="{ open: openTATId === q.id }">
             <!-- Header -->
             <button class="acc-head" @click="toggleTAT(q.id)">
               <div class="acc-left">
@@ -278,74 +254,69 @@
             </button>
 
             <!-- Body -->
-          <div v-if="openTATId === q.id" class="acc-body">
+            <div v-if="openTATId === q.id" class="acc-body">
 
-  <!-- MODE EDIT -->
-  <div v-if="editingTATId === q.id" class="edit-box">
-    <label>Question</label>
-    <textarea v-model="tatEditForm.texte" class="textarea" rows="2"></textarea>
+              <!-- MODE EDIT -->
+              <div v-if="editingTATId === q.id" class="edit-box">
+                <label>Question</label>
+                <textarea v-model="tatEditForm.texte" class="textarea" rows="2"></textarea>
 
-    <label>Réponse 1</label>
-    <input v-model="tatEditForm.reponse1" class="input"/>
+                <label>Réponse 1</label>
+                <input v-model="tatEditForm.reponse1" class="input" />
 
-    <label>Réponse 2</label>
-    <input v-model="tatEditForm.reponse2" class="input"/>
+                <label>Réponse 2</label>
+                <input v-model="tatEditForm.reponse2" class="input" />
 
-    <label>Réponse 3</label>
-    <input v-model="tatEditForm.reponse3" class="input"/>
+                <label>Réponse 3</label>
+                <input v-model="tatEditForm.reponse3" class="input" />
 
-    <label>Réponse 4</label>
-    <input v-model="tatEditForm.reponse4" class="input"/>
+                <label>Réponse 4</label>
+                <input v-model="tatEditForm.reponse4" class="input" />
 
-    <label>Bonne réponse (1-4)</label>
-    <input
-      type="number"
-      min="1"
-      max="4"
-      v-model.number="tatEditForm.numero_reponse_correcte"
-      class="input"
-    />
+                <label>Bonne réponse (1-4)</label>
+                <input type="number" min="1" max="4" v-model.number="tatEditForm.numero_reponse_correcte"
+                  class="input" />
 
-    <label>Explication</label>
-    <textarea v-model="tatEditForm.explication" class="textarea" rows="2"></textarea>
+                <label>Explication</label>
+                <textarea v-model="tatEditForm.explication" class="textarea" rows="2"></textarea>
 
-    <div class="card-actions">
-      <UiButton variant="ghost" @click="cancelEditTAT">Annuler</UiButton>
-      <UiButton variant="primary" @click="saveEditTAT(q.id)">Enregistrer</UiButton>
-    </div>
-  </div>
+                <div class="card-actions">
+                  <UiButton variant="ghost" @click="cancelEditTAT">Annuler</UiButton>
+                  <UiButton variant="primary" @click="saveEditTAT(q.id)">Enregistrer</UiButton>
+                </div>
+              </div>
 
-  <!-- MODE VIEW -->
-  <div v-else>
-    <div class="answers">
-      <div class="answer" :class="{ correct: q.numero_reponse_correcte === 1 }">
-        <span class="answer-letter">1)</span>
-        <span>{{ q.reponse1 }}</span>
-      </div>
-      <div class="answer" :class="{ correct: q.numero_reponse_correcte === 2 }">
-        <span class="answer-letter">2)</span>
-        <span>{{ q.reponse2 }}</span>
-      </div>
-      <div class="answer" :class="{ correct: q.numero_reponse_correcte === 3 }">
-        <span class="answer-letter">3)</span>
-        <span>{{ q.reponse3 }}</span>
-      </div>
-      <div class="answer" :class="{ correct: q.numero_reponse_correcte === 4 }">
-        <span class="answer-letter">4)</span>
-        <span>{{ q.reponse4 }}</span>
-      </div>
-    </div>
+              <!-- MODE VIEW -->
+              <div v-else>
+                <div class="answers">
+                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 1 }">
+                    <span class="answer-letter">1)</span>
+                    <span>{{ q.reponse1 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 2 }">
+                    <span class="answer-letter">2)</span>
+                    <span>{{ q.reponse2 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 3 }">
+                    <span class="answer-letter">3)</span>
+                    <span>{{ q.reponse3 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 4 }">
+                    <span class="answer-letter">4)</span>
+                    <span>{{ q.reponse4 }}</span>
+                  </div>
+                </div>
 
-    <p v-if="q.explication" class="explain">
-      <strong>Explication :</strong> {{ q.explication }}
-    </p>
+                <p v-if="q.explication" class="explain">
+                  <strong>Explication :</strong> {{ q.explication }}
+                </p>
 
-    <div class="acc-actions">
-      <UiButton variant="ghost" @click="startEditTAT(q)">✏️ Modifier</UiButton>
-      <button class="danger" @click="deleteTAT(q.id)">Supprimer</button>
-    </div>
-  </div>
-</div>
+                <div class="acc-actions">
+                  <UiButton variant="ghost" @click="startEditTAT(q)">✏️ Modifier</UiButton>
+                  <button class="danger" @click="deleteTAT(q.id)">Supprimer</button>
+                </div>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -514,7 +485,7 @@ const fetchTAT = async () => {
     // ouvrir automatiquement la première question si existe
     openTATId.value = tatQuestions.value[0]?.id ?? null
   } catch (e) {
-    error.value = e.message || 'Erreur chargement Text à True'
+    error.value = e.message || 'Erreur chargement Texte à Trou'
     tatQuestions.value = []
     openTATId.value = null
   } finally {
@@ -704,121 +675,520 @@ onMounted(async () => {
 
 <style scoped>
 /* Header */
-.header-row { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
-.actions { display:flex; gap:10px; flex-wrap:wrap; }
-.eyebrow { text-transform:uppercase; letter-spacing:.08em; font-size:12px; color:#667eea; margin:0 0 6px; font-weight:800; }
-.subtitle { margin:6px 0 0; color:#555; }
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px;
+  color: #667eea;
+  margin: 0 0 6px;
+  font-weight: 800;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: #555;
+}
 
 /* Alerts */
-.error-bar,.success-bar{ padding:12px 16px; border-radius:10px; margin-bottom:12px; border:1px solid; display:flex; align-items:center; justify-content:space-between; gap:10px;}
-.error-bar{ background:#ffe3e3; color:#b00020; border-color:#ffb3b3;}
-.success-bar{ background:#e7fff1; color:#0a6b2b; border-color:#b6f2cb;}
-.close-x{ background:transparent; border:none; cursor:pointer; font-size:20px; line-height:1; color:inherit; }
+.error-bar,
+.success-bar {
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.error-bar {
+  background: #ffe3e3;
+  color: #b00020;
+  border-color: #ffb3b3;
+}
+
+.success-bar {
+  background: #e7fff1;
+  color: #0a6b2b;
+  border-color: #b6f2cb;
+}
+
+.close-x {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  color: inherit;
+}
 
 /* Panels */
-.panel{ background:#fff; border-radius:14px; box-shadow:0 4px 15px rgba(0,0,0,.08); margin-bottom:20px; overflow:hidden; }
-.panel-head{ background:#fafafa; border-bottom:1px solid #eee; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.panel-title{ display:flex; align-items:center; gap:10px; }
-.panel-title h3{ margin:0; color:#222; }
-.icon{ font-size:20px; }
-.panel-body{ padding:16px; }
+.panel {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.panel-head {
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-title h3 {
+  margin: 0;
+  color: #222;
+}
+
+.icon {
+  font-size: 20px;
+}
+
+.panel-body {
+  padding: 16px;
+}
 
 /* Cards */
-.dashboard-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-top:10px; }
-.card{ background:white; padding:18px; border-radius:14px; box-shadow:0 4px 15px rgba(0,0,0,.08); display:flex; flex-direction:column; gap:10px; }
-.card-icon{ font-size:2rem; }
-.description{ color:#555; margin:0; white-space:pre-wrap; }
-.meta{ color:#777; font-size:.9rem; margin:0; }
-.card-actions{ margin-top:auto; display:flex; justify-content:flex-end; gap:10px; }
-.edit-box{
-  background:#f8f9ff;
-  border:1px solid #d8ddff;
-  padding:12px;
-  border-radius:12px;
-  display:grid;
-  gap:8px;
-  margin-bottom:12px;
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 10px;
 }
-.edit-box label{
-  font-weight:800;
-  color:#333;
-  font-size:0.9rem;
+
+.card {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-icon {
+  font-size: 2rem;
+}
+
+.description {
+  color: #555;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.meta {
+  color: #777;
+  font-size: .9rem;
+  margin: 0;
+}
+
+.card-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.edit-box {
+  background: #f8f9ff;
+  border: 1px solid #d8ddff;
+  padding: 12px;
+  border-radius: 12px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.edit-box label {
+  font-weight: 800;
+  color: #333;
+  font-size: 0.9rem;
 }
 
 /* Buttons */
-.danger{ background:#ffeded; color:#b00020; border:1px solid #ffb3b3; border-radius:10px; padding:10px 14px; cursor:pointer; font-weight:800; }
-.danger:disabled{ opacity:.7; cursor:not-allowed; }
+.danger {
+  background: #ffeded;
+  color: #b00020;
+  border: 1px solid #ffb3b3;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.danger:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+}
 
 /* Inputs */
-.input,.textarea{ width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:10px; font-size:1rem; background:#fafafa; }
-.textarea{ resize:vertical; }
-.field{ display:grid; gap:6px; margin-top:12px; }
-.field span{ font-size:.9rem; color:#444; font-weight:700; }
+.input,
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #fafafa;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.field span {
+  font-size: .9rem;
+  color: #444;
+  font-weight: 700;
+}
 
 /* Loading + empty */
-.loading{ display:flex; align-items:center; gap:10px; color:#555; }
-.empty{ display:grid; gap:8px; color:#666; }
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #555;
+}
+
+.empty {
+  display: grid;
+  gap: 8px;
+  color: #666;
+}
 
 /* Spinner */
-.spinner{ width:16px; height:16px; border:2px solid rgba(0,0,0,.15); border-top-color:rgba(0,0,0,.5); border-radius:50%; animation:spin .8s linear infinite; }
-@keyframes spin{ to{ transform:rotate(360deg);} }
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, .15);
+  border-top-color: rgba(0, 0, 0, .5);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Badge / pill */
-.badge{ background:#eef0ff; color:#667eea; font-size:12px; font-weight:900; padding:2px 8px; border-radius:999px; }
-.pill{ background:#f3f4ff; color:#4a55e6; font-size:12px; font-weight:900; padding:6px 10px; border-radius:999px; border:1px solid #d8ddff; }
+.badge {
+  background: #eef0ff;
+  color: #667eea;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.pill {
+  background: #f3f4ff;
+  color: #4a55e6;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d8ddff;
+}
 
 /* Modal */
-.modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; }
-.modal{ width:100%; max-width:640px; background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.15); padding:20px; }
-.modal-big{ max-width:900px; }
-.modal-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-.modal-top-actions{ display:flex; gap:10px; align-items:center; }
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal {
+  width: 100%;
+  max-width: 640px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+  padding: 20px;
+}
+
+.modal-big {
+  max-width: 900px;
+}
+
+.modal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.modal-top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
 /* Game picker */
-.game-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:14px; }
-.game-tile{ border:1px solid #eee; background:#fafafa; border-radius:14px; padding:14px; cursor:pointer; text-align:left; transition:transform .15s,border-color .15s, box-shadow .15s; }
-.game-tile:hover{ transform:translateY(-1px); border-color:#d8ddff; box-shadow:0 8px 18px rgba(0,0,0,.06); }
-.game-emoji{ font-size:26px; }
-.game-title{ font-weight:900; color:#222; margin-top:6px; }
-.game-desc{ color:#666; font-size:13px; margin-top:2px; }
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.game-tile {
+  border: 1px solid #eee;
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+
+.game-tile:hover {
+  transform: translateY(-1px);
+  border-color: #d8ddff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .06);
+}
+
+.game-emoji {
+  font-size: 26px;
+}
+
+.game-title {
+  font-weight: 900;
+  color: #222;
+  margin-top: 6px;
+}
+
+.game-desc {
+  color: #666;
+  font-size: 13px;
+  margin-top: 2px;
+}
 
 /* Game cards */
-.game-card{ cursor:pointer; transition:transform .15s, box-shadow .15s; }
-.game-card:hover{ transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,.08); }
-.game-card.disabled{ opacity:.6; cursor:not-allowed; }
-.game-card.disabled:hover{ transform:none; box-shadow:0 4px 15px rgba(0,0,0,.08); }
+.game-card {
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .08);
+}
+
+.game-card.disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.game-card.disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+}
 
 /* Accordion */
-.tat-accordion{ display:grid; gap:10px; }
-.acc-item{ border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fff; }
-.acc-item.open{ border-color:#d8ddff; box-shadow:0 8px 20px rgba(0,0,0,.06); }
-.acc-head{ width:100%; border:none; background:#fafafa; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px; cursor:pointer; }
-.acc-left{ display:flex; align-items:center; gap:10px; min-width:0; }
-.acc-index{ font-weight:900; color:#667eea; background:#eef0ff; border-radius:999px; padding:4px 8px; font-size:12px; }
-.acc-text{ color:#222; font-weight:800; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.acc-right{ display:flex; align-items:center; gap:10px; }
-.chev{ font-size:18px; color:#667eea; font-weight:900; }
-.acc-body{ padding:14px; }
+.tat-accordion {
+  display: grid;
+  gap: 10px;
+}
 
-.answers{ display:grid; gap:8px; }
-.answer{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background:#fafafa; border:1px solid #eee; }
-.answer.correct{ background:#f2fff7; border-color:#b6f2cb; }
-.answer-letter{ font-weight:900; color:#667eea; width:28px; }
+.acc-item {
+  border: 1px solid #eee;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
 
-.explain{ margin-top:10px; background:#fafafa; border-left:4px solid #667eea; padding:10px 12px; border-radius:12px; color:#444; }
-.acc-actions{ margin-top:12px; display:flex; justify-content:flex-end; }
+.acc-item.open {
+  border-color: #d8ddff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+}
 
-.modal-footer-lite{ margin-top:16px; display:flex; justify-content:flex-end; }
+.acc-head {
+  width: 100%;
+  border: none;
+  background: #fafafa;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
 
-.skeleton{ position:relative; overflow:hidden; }
-.skeleton::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent); animation:shimmer 1.5s infinite; }
-.skeleton-line{ height:14px; background:#ececec; border-radius:6px; margin:8px 0; }
-.skeleton-line.title{ width:70%; height:18px; }
-.skeleton-line.short{ width:40%; }
-@keyframes shimmer{ 0%{ transform:translateX(-100%);} 100%{ transform:translateX(100%);} }
+.acc-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
 
-@media (max-width:768px){
-  .dashboard-grid{ grid-template-columns:1fr; }
-  .game-grid{ grid-template-columns:1fr; }
+.acc-index {
+  font-weight: 900;
+  color: #667eea;
+  background: #eef0ff;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.acc-text {
+  color: #222;
+  font-weight: 800;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.acc-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chev {
+  font-size: 18px;
+  color: #667eea;
+  font-weight: 900;
+}
+
+.acc-body {
+  padding: 14px;
+}
+
+.answers {
+  display: grid;
+  gap: 8px;
+}
+
+.answer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fafafa;
+  border: 1px solid #eee;
+}
+
+.answer.correct {
+  background: #f2fff7;
+  border-color: #b6f2cb;
+}
+
+.answer-letter {
+  font-weight: 900;
+  color: #667eea;
+  width: 28px;
+}
+
+.explain {
+  margin-top: 10px;
+  background: #fafafa;
+  border-left: 4px solid #667eea;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #444;
+}
+
+.acc-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-footer-lite {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line {
+  height: 14px;
+  background: #ececec;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.skeleton-line.title {
+  width: 70%;
+  height: 18px;
+}
+
+.skeleton-line.short {
+  width: 40%;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width:768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .game-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

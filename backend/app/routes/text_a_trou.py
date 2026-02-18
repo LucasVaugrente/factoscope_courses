@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/api/text-a-true",
-    tags=["Text à True"]
+    tags=["Texte à Trou"]
 )
 
 def _clean_cell(x: Optional[str]) -> str:
@@ -113,7 +113,7 @@ async def upload_text_a_trou(
 
         added = 0
         for (texte, r1, r2, r3, r4, correct_int) in valid:
-            q = models.TextATrue(
+            q = models.TextATrou(
                 texte=texte,
                 reponse1=r1,
                 reponse2=r2,
@@ -151,7 +151,7 @@ async def upload_text_a_trou(
 
 @router.get("/{cours_id}")
 def get_text_a_trou_par_cours(cours_id: int, db: Session = Depends(get_db)):
-    qs = db.query(models.TextATrue).filter(models.TextATrue.id_cours == cours_id).all()
+    qs = db.query(models.TextATrou).filter(models.TextATrou.id_cours == cours_id).all()
     return [
         {
             "id": q.id,
@@ -169,18 +169,18 @@ def get_text_a_trou_par_cours(cours_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_text_a_trou(question_id: int, db: Session = Depends(get_db)):
-    q = db.query(models.TextATrue).filter(models.TextATrue.id == question_id).first()
+    q = db.query(models.TextATrou).filter(models.TextATrou.id == question_id).first()
     if not q:
         raise HTTPException(status_code=404, detail="Question introuvable")
 
     db.delete(q)
     db.commit()
     return None
-# Schémas pour Text à True
+# Schémas pour Texte à Trou
 from pydantic import BaseModel, Field
 from typing import Optional
 
-class TextATrueUpdate(BaseModel):
+class TextATrouUpdate(BaseModel):
     texte: Optional[str] = None
     reponse1: Optional[str] = None
     reponse2: Optional[str] = None
@@ -189,8 +189,8 @@ class TextATrueUpdate(BaseModel):
     numero_reponse_correcte: Optional[int] = Field(default=None, ge=1, le=4)
     explication: Optional[str] = None
 @router.put("/{question_id}")
-def update_text_a_trou(question_id: int, payload: TextATrueUpdate, db: Session = Depends(get_db)):
-    q = db.query(models.TextATrue).filter(models.TextATrue.id == question_id).first()
+def update_text_a_trou(question_id: int, payload: TextATrouUpdate, db: Session = Depends(get_db)):
+    q = db.query(models.TextATrou).filter(models.TextATrou.id == question_id).first()
     if not q:
         raise HTTPException(status_code=404, detail="Question introuvable")
 

@@ -34,8 +34,7 @@ class LoginRequest(BaseModel):
 
 # Données temporaires (à remplacer par une vraie base de données)
 users_db = {
-    "admin": {"password": "admin123", "name": "Administrateur"},
-    "user": {"password": "user123", "name": "Utilisateur"}
+    "password": "admin123", "name": "Administrateur"
 }
 
 @app.get("/")
@@ -44,9 +43,7 @@ def read_root():
 
 @app.post("/api/login")
 def login(credentials: LoginRequest):
-    user = users_db.get(credentials.username)
-    
-    if not user or user["password"] != credentials.password:
+    if credentials.username != users_db["name"] or credentials.password != users_db["password"]:
         raise HTTPException(status_code=401, detail="Identifiants incorrects")
     
     # Dans un vrai projet, générer un vrai token JWT
@@ -55,7 +52,7 @@ def login(credentials: LoginRequest):
     return {
         "token": token,
         "username": credentials.username,
-        "name": user["name"],
+        "name": credentials.username,
         "message": "Connexion réussie"
     }
 
@@ -332,5 +329,5 @@ def delete_qcm(qcm_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "QCM supprimé avec succès"}
 
-# Inclure le routeur Text à True
+# Inclure le routeur Texte à Trou
 app.include_router(text_a_trou.router)

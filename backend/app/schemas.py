@@ -68,7 +68,7 @@ class QCM(QCMBase):
 
 
 
-class TextATrueOut(BaseModel):
+class TextATrouOut(BaseModel):
     id: int
     texte: str
     reponse1: str
