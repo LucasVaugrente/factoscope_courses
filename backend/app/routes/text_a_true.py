@@ -27,7 +27,7 @@ def _is_header_line(row: List[str]) -> bool:
     return len(cleaned) == 1
 
 @router.post("/upload/{cours_id}", status_code=status.HTTP_201_CREATED)
-async def upload_text_a_true(
+async def upload_text_a_trou(
     cours_id: int,
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -150,7 +150,7 @@ async def upload_text_a_true(
 
 
 @router.get("/{cours_id}")
-def get_text_a_true_par_cours(cours_id: int, db: Session = Depends(get_db)):
+def get_text_a_trou_par_cours(cours_id: int, db: Session = Depends(get_db)):
     qs = db.query(models.TextATrue).filter(models.TextATrue.id_cours == cours_id).all()
     return [
         {
@@ -168,7 +168,7 @@ def get_text_a_true_par_cours(cours_id: int, db: Session = Depends(get_db)):
     ]
 
 @router.delete("/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_text_a_true(question_id: int, db: Session = Depends(get_db)):
+def delete_text_a_trou(question_id: int, db: Session = Depends(get_db)):
     q = db.query(models.TextATrue).filter(models.TextATrue.id == question_id).first()
     if not q:
         raise HTTPException(status_code=404, detail="Question introuvable")
@@ -189,7 +189,7 @@ class TextATrueUpdate(BaseModel):
     numero_reponse_correcte: Optional[int] = Field(default=None, ge=1, le=4)
     explication: Optional[str] = None
 @router.put("/{question_id}")
-def update_text_a_true(question_id: int, payload: TextATrueUpdate, db: Session = Depends(get_db)):
+def update_text_a_trou(question_id: int, payload: TextATrueUpdate, db: Session = Depends(get_db)):
     q = db.query(models.TextATrue).filter(models.TextATrue.id == question_id).first()
     if not q:
         raise HTTPException(status_code=404, detail="Question introuvable")

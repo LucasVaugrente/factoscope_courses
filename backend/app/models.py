@@ -25,7 +25,7 @@ class Cours(Base):
     module = relationship("Module", back_populates="cours")
     pages = relationship("Page", back_populates="cours", cascade="all, delete-orphan")
     qcms = relationship("QCM", back_populates="cours", cascade="all, delete-orphan")
-    text_a_true = relationship("TextATrue", back_populates="cours", cascade="all, delete-orphan")
+    text_a_trou = relationship("TextATrue", back_populates="cours", cascade="all, delete-orphan")
 
 class Page(Base):
     __tablename__ = "page"
@@ -55,7 +55,7 @@ class QCM(Base):
     cours = relationship("Cours", back_populates="qcms")
 
 class TextATrue(Base):
-    __tablename__ = "text_a_true"
+    __tablename__ = "text_a_trou"
     
     id = Column(Integer, primary_key=True, index=True)
     texte = Column(Text, nullable=False)
@@ -68,4 +68,4 @@ class TextATrue(Base):
     id_cours = Column(Integer, ForeignKey("cours.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     
     # Relations
-    cours = relationship("Cours", back_populates="text_a_true")
+    cours = relationship("Cours", back_populates="text_a_trou")

@@ -8,7 +8,7 @@ import csv
 import io
 
 # Import des routeurs
-from .routes import text_a_true
+from .routes import text_a_trou
 
 from . import models, schemas
 from .database import engine, get_db
@@ -333,4 +333,4 @@ def delete_qcm(qcm_id: int, db: Session = Depends(get_db)):
     return {"message": "QCM supprimé avec succès"}
 
 # Inclure le routeur Text à True
-app.include_router(text_a_true.router)
+app.include_router(text_a_trou.router)
