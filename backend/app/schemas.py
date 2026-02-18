@@ -65,3 +65,19 @@ class QCM(QCMBase):
     
     class Config:
         from_attributes = True
+
+
+
+class TextATrueOut(BaseModel):
+    id: int
+    texte: str
+    reponse1: str
+    reponse2: str
+    reponse3: str
+    reponse4: str
+    numero_reponse_correcte: int
+    explication: Optional[str] = None
+    id_cours: int
+
+    class Config:
+        from_attributes = True

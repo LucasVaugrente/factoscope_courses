@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -25,6 +25,7 @@ class Cours(Base):
     module = relationship("Module", back_populates="cours")
     pages = relationship("Page", back_populates="cours", cascade="all, delete-orphan")
     qcms = relationship("QCM", back_populates="cours", cascade="all, delete-orphan")
+    text_a_true = relationship("TextATrue", back_populates="cours", cascade="all, delete-orphan")
 
 class Page(Base):
     __tablename__ = "page"
@@ -52,3 +53,19 @@ class QCM(Base):
     
     # Relations
     cours = relationship("Cours", back_populates="qcms")
+
+class TextATrue(Base):
+    __tablename__ = "text_a_true"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    texte = Column(Text, nullable=False)
+    reponse1 = Column(String(255), nullable=False)
+    reponse2 = Column(String(255), nullable=False)
+    reponse3 = Column(String(255), nullable=False)
+    reponse4 = Column(String(255), nullable=False)
+    numero_reponse_correcte = Column(Integer, nullable=False)  # 1, 2, 3 ou 4
+    explication = Column(Text)
+    id_cours = Column(Integer, ForeignKey("cours.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    
+    # Relations
+    cours = relationship("Cours", back_populates="text_a_true")

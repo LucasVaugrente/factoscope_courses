@@ -34,3 +34,24 @@ Exécuter le seed:
 docker compose exec backend python /app/test.py
 
 
+''''''
+SANS DOCKER
+a méthode simple pour exécuter  backend FastAPI sans Docker
+cd backend  
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+  
+CONTENU .env
+DATABASE_URL=mysql+pymysql://root:password@127.0.0.1:3306/factoscope
+Adapte :
+
+user: root ou autre
+
+password
+
+db name factoscope
+
+port 3306
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000:lancer l'app

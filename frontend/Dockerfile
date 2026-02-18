@@ -1,22 +1,28 @@
-# Utiliser l'image officielle Node.js version 20
 FROM node:20
-
-# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier package.json et installer les dépendances
-COPY package.json /app/
-COPY package-lock.json /app/
-RUN npm install
+# Copier d'abord les fichiers de dépendances
+COPY package*.json ./
 
-# Copier le reste du projet
-COPY . /app/
+# Installer les dépendances avec des versions spécifiques
+RUN npm install \
+    pinia@2.1.7 \
+    postcss-import@15.1.0 \
+    postcss-nested@6.0.1 \
+    tailwindcss@3.3.0 \
+    --legacy-peer-deps
 
-# Construire l'application pour la production
+# Installer les autres dépendances
+RUN npm install --legacy-peer-deps
+
+# Copier le reste des fichiers
+COPY . .
+
+# Construire l'application
 RUN npm run build
 
-# Exposer le port sur lequel l'application sera disponible
-EXPOSE 8080
+# Exposer le port de développement
+EXPOSE 5173
 
-# Lancer l'application en mode développement
-CMD ["npm", "run", "dev"]
+# Démarrer l'application en mode développement
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
