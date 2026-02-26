@@ -34,6 +34,7 @@ class Cours(CoursBase):
 # Schémas pour Page
 class PageBase(BaseModel):
     description: Optional[str] = None
+    content: Optional[str] = None
     medias: Optional[str] = ""
     est_vue: Optional[int] = 0
     id_cours: int

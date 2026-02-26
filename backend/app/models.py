@@ -32,6 +32,7 @@ class Page(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     description = Column(Text)
+    content = Column(Text)
     medias = Column(Text, default="")
     est_vue = Column(Integer, default=0)
     id_cours = Column(Integer, ForeignKey("cours.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
