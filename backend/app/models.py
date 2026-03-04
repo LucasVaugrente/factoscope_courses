@@ -26,6 +26,7 @@ class Cours(Base):
     pages = relationship("Page", back_populates="cours", cascade="all, delete-orphan")
     qcms = relationship("QCM", back_populates="cours", cascade="all, delete-orphan")
     text_a_true = relationship("TextATrue", back_populates="cours", cascade="all, delete-orphan")
+    jeux_classement = relationship("JeuClassement", back_populates="cours", cascade="all, delete-orphan")
 
 class Page(Base):
     __tablename__ = "page"
@@ -69,3 +70,19 @@ class TextATrue(Base):
     
     # Relations
     cours = relationship("Cours", back_populates="text_a_true")
+
+class JeuClassement(Base):
+    __tablename__ = "jeu_classement"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    question = Column(Text, nullable=False)
+    element1 = Column(String(500), nullable=False)
+    element2 = Column(String(500), nullable=False)
+    element3 = Column(String(500), nullable=False)
+    element4 = Column(String(500), nullable=False)
+    ordre_solution = Column(String(100), nullable=False)  # ex: "2<1<4<3"
+    type_elements = Column(String(50), nullable=False)  # "texte" ou "images"
+    id_cours = Column(Integer, ForeignKey("cours.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    
+    # Relations
+    cours = relationship("Cours", back_populates="jeux_classement")
