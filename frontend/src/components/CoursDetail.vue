@@ -81,7 +81,7 @@
               <input
                 v-model="editingForm.medias"
                 class="input"
-                placeholder="URLs médias séparées par des virgules"
+                placeholder="URLs médias séparées par des 'at' "
               />
 
               <div class="card-actions">
@@ -127,12 +127,12 @@
             <p class="meta">Clique pour voir (liste déroulante)</p>
           </div>
 
-          <!-- QCM placeholder -->
-          <div class="card game-card disabled">
+          <!-- QCM -->
+          <div class="card game-card" @click="openQCMViewer">
             <div class="card-icon">📝</div>
             <h3>QCM</h3>
-            <p class="description">Bientôt disponible</p>
-            <p class="meta">À connecter après</p>
+            <p class="description">{{ qcmQuestions.length }} question(s)</p>
+            <p class="meta">Clique pour voir (liste déroulante)</p>
           </div>
         </div>
       </div>
@@ -154,7 +154,7 @@
         </label>
 
         <label class="field">
-          <span>Médias (URLs séparées par des virgules)</span>
+          <span>Médias (URLs séparées par des "at")</span>
           <input
             v-model="newPageForm.medias"
             class="input"
@@ -226,6 +226,34 @@
           <UiButton variant="ghost" @click="closeUploadTAT" :disabled="isUploadingTAT">Annuler</UiButton>
           <UiButton variant="primary" @click="submitTATUpload" :disabled="!tatFile || isUploadingTAT">
             {{ isUploadingTAT ? 'Import en cours...' : 'Importer' }}
+          </UiButton>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Upload QCM -->
+    <div v-if="showUploadQCM" class="modal-backdrop" @click="closeUploadQCM">
+      <div class="modal" @click.stop>
+        <h3>Importer QCM (CSV)</h3>
+        <p class="subtitle" style="margin-top:6px;">
+          Format : <code>question;rep1;rep2;rep3;rep4;solution</code>
+        </p>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Fichier CSV</span>
+            <input class="input" type="file" accept=".csv,text/csv" @change="onQCMFileChange" />
+          </label>
+        </div>
+
+        <div v-if="uploadError" class="error-bar" style="margin-top:10px;">
+          {{ uploadError }}
+        </div>
+
+        <div class="card-actions" style="margin-top:16px;">
+          <UiButton variant="ghost" @click="closeUploadQCM" :disabled="isUploadingQCM">Annuler</UiButton>
+          <UiButton variant="primary" @click="submitQCMUpload" :disabled="!qcmFile || isUploadingQCM">
+            {{ isUploadingQCM ? 'Import en cours...' : 'Importer' }}
           </UiButton>
         </div>
       </div>
@@ -355,6 +383,122 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal: Viewer QCM (accordion) -->
+    <div v-if="showQCMViewer" class="modal-backdrop" @click="closeQCMViewer">
+      <div class="modal modal-big" @click.stop>
+        <div class="modal-top">
+          <div>
+            <h3 style="margin:0;">QCM — Questions</h3>
+            <p class="subtitle" style="margin:6px 0 0;">
+              Clique sur une question pour dérouler les réponses.
+            </p>
+          </div>
+
+          <div class="modal-top-actions">
+            <UiButton variant="ghost" @click="showUploadQCM = true">Importer CSV</UiButton>
+            <button class="close-x" @click="closeQCMViewer">×</button>
+          </div>
+        </div>
+
+        <div v-if="isLoadingQCM" class="loading" style="margin-top:12px;">
+          <span class="spinner"></span> Chargement...
+        </div>
+
+        <div v-else-if="qcmQuestions.length === 0" class="empty" style="margin-top:12px;">
+          <p>Aucune question QCM importée pour ce cours.</p>
+          <UiButton variant="primary" @click="showUploadQCM = true">Importer CSV</UiButton>
+        </div>
+
+        <div v-else class="qcm-accordion" style="margin-top:12px;">
+          <div
+            v-for="(q, i) in qcmQuestions"
+            :key="q.id"
+            class="acc-item"
+            :class="{ open: openQCMId === q.id }"
+          >
+            <!-- Header -->
+            <button class="acc-head" @click="toggleQCM(q.id)">
+              <div class="acc-left">
+                <span class="acc-index">#{{ i + 1 }}</span>
+                <span class="acc-text">{{ q.question }}</span>
+              </div>
+
+              <div class="acc-right">
+                <span class="pill">Solution : {{ q.soluce }}</span>
+                <span class="chev">{{ openQCMId === q.id ? '▾' : '▸' }}</span>
+              </div>
+            </button>
+
+            <!-- Body -->
+            <div v-if="openQCMId === q.id" class="acc-body">
+              <!-- MODE EDIT -->
+              <div v-if="editingQCMId === q.id" class="edit-box">
+                <label>Question</label>
+                <textarea v-model="qcmEditForm.question" class="textarea" rows="2"></textarea>
+
+                <label>Réponse 1</label>
+                <input v-model="qcmEditForm.rep1" class="input"/>
+
+                <label>Réponse 2</label>
+                <input v-model="qcmEditForm.rep2" class="input"/>
+
+                <label>Réponse 3</label>
+                <input v-model="qcmEditForm.rep3" class="input"/>
+
+                <label>Réponse 4</label>
+                <input v-model="qcmEditForm.rep4" class="input"/>
+
+                <label>Solution (1-4)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="4"
+                  v-model.number="qcmEditForm.soluce"
+                  class="input"
+                />
+
+                <div class="card-actions">
+                  <UiButton variant="ghost" @click="cancelEditQCM">Annuler</UiButton>
+                  <UiButton variant="primary" @click="saveEditQCM(q.id)">Enregistrer</UiButton>
+                </div>
+              </div>
+
+              <!-- MODE VIEW -->
+              <div v-else>
+                <div class="answers">
+                  <div class="answer" :class="{ correct: q.soluce === 1 }">
+                    <span class="answer-letter">1)</span>
+                    <span>{{ q.rep1 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.soluce === 2 }">
+                    <span class="answer-letter">2)</span>
+                    <span>{{ q.rep2 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.soluce === 3 }">
+                    <span class="answer-letter">3)</span>
+                    <span>{{ q.rep3 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.soluce === 4 }">
+                    <span class="answer-letter">4)</span>
+                    <span>{{ q.rep4 }}</span>
+                  </div>
+                </div>
+
+                <div class="acc-actions">
+                  <UiButton variant="ghost" @click="startEditQCM(q)">✏️ Modifier</UiButton>
+                  <button class="danger" @click="deleteQCM(q.id)">Supprimer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-lite">
+          <UiButton variant="ghost" @click="closeQCMViewer">Fermer</UiButton>
+        </div>
+      </div>
+    </div>
   </AppLayout>
 </template>
 
@@ -385,16 +529,23 @@ const isBusy = computed(() => isLoadingCours.value || isLoadingPages.value)
 // ---------- Jeux ----------
 const showGamePicker = ref(false)
 const showUploadTAT = ref(false)
+const showUploadQCM = ref(false)
 const uploadError = ref('')
 const tatFile = ref(null)
+const qcmFile = ref(null)
 const isUploadingTAT = ref(false)
+const isUploadingQCM = ref(false)
 
 const showTATViewer = ref(false)
+const showQCMViewer = ref(false)
 const isLoadingTAT = ref(false)
+const isLoadingQCM = ref(false)
 const tatQuestions = ref([])
+const qcmQuestions = ref([])
 
 // accordion state
 const openTATId = ref(null)
+const openQCMId = ref(null)
 
 // ---------- Pages forms ----------
 const showAddModal = ref(false)
@@ -410,6 +561,15 @@ const tatEditForm = ref({
   reponse4: '',
   numero_reponse_correcte: 1,
   explication: ''
+})
+const editingQCMId = ref(null)
+const qcmEditForm = ref({
+  question: '',
+  rep1: '',
+  rep2: '',
+  rep3: '',
+  rep4: '',
+  soluce: 1
 })
 const startEditTAT = (q) => {
   editingTATId.value = q.id
@@ -442,6 +602,39 @@ const saveEditTAT = async (id) => {
 
   } catch (e) {
     error.value = e.message || "Erreur modification question"
+  }
+}
+
+const startEditQCM = (q) => {
+  editingQCMId.value = q.id
+  qcmEditForm.value = {
+    question: q.question,
+    rep1: q.rep1,
+    rep2: q.rep2,
+    rep3: q.rep3,
+    rep4: q.rep4,
+    soluce: q.soluce
+  }
+  openQCMId.value = q.id
+}
+
+const cancelEditQCM = () => {
+  editingQCMId.value = null
+}
+
+const saveEditQCM = async (id) => {
+  try {
+    await apiFetch(`${apiBase}/api/qcm/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(qcmEditForm.value)
+    })
+
+    successMessage.value = "Question QCM mise à jour"
+    editingQCMId.value = null
+    await fetchQCM()
+
+  } catch (e) {
+    error.value = e.message || "Erreur modification question QCM"
   }
 }
 
@@ -519,6 +712,24 @@ const fetchTAT = async () => {
     openTATId.value = null
   } finally {
     isLoadingTAT.value = false
+  }
+}
+
+const fetchQCM = async () => {
+  if (!coursId.value) return
+  isLoadingQCM.value = true
+  error.value = ''
+  try {
+    const data = await apiFetch(`${apiBase}/api/qcm/${coursId.value}`, { method: 'GET' })
+    qcmQuestions.value = Array.isArray(data) ? data : []
+    // ouvrir automatiquement la première question si existe
+    openQCMId.value = qcmQuestions.value[0]?.id ?? null
+  } catch (e) {
+    error.value = e.message || 'Erreur chargement QCM'
+    qcmQuestions.value = []
+    openQCMId.value = null
+  } finally {
+    isLoadingQCM.value = false
   }
 }
 
@@ -605,7 +816,7 @@ const closeGamePicker = () => (showGamePicker.value = false)
 const chooseGame = (type) => {
   showGamePicker.value = false
   if (type === 'tat') showUploadTAT.value = true
-  if (type === 'qcm') successMessage.value = 'QCM bientôt disponible ✅'
+  if (type === 'qcm') showUploadQCM.value = true
 }
 
 const closeUploadTAT = () => {
@@ -614,8 +825,18 @@ const closeUploadTAT = () => {
   tatFile.value = null
 }
 
+const closeUploadQCM = () => {
+  showUploadQCM.value = false
+  uploadError.value = ''
+  qcmFile.value = null
+}
+
 const onTATFileChange = (e) => {
   tatFile.value = e.target.files?.[0] || null
+}
+
+const onQCMFileChange = (e) => {
+  qcmFile.value = e.target.files?.[0] || null
 }
 
 const submitTATUpload = async () => {
@@ -652,17 +873,64 @@ const submitTATUpload = async () => {
   }
 }
 
+const submitQCMUpload = async () => {
+  if (!qcmFile.value) return
+  isUploadingQCM.value = true
+  uploadError.value = ''
+  error.value = ''
+  successMessage.value = ''
+
+  if (!qcmFile.value.name.toLowerCase().endsWith('.csv')) {
+    uploadError.value = 'Le fichier doit être .csv'
+    isUploadingQCM.value = false
+    return
+  }
+
+  try {
+    const fd = new FormData()
+    fd.append('file', qcmFile.value)
+
+    const res = await apiFetch(`${apiBase}/api/qcm/upload/${coursId.value}`, {
+      method: 'POST',
+      body: fd
+    })
+
+    successMessage.value = res?.message || 'Import QCM réussi'
+    showUploadQCM.value = false
+
+    await fetchQCM()
+    showQCMViewer.value = true
+  } catch (e) {
+    uploadError.value = e.message || 'Erreur import CSV QCM'
+  } finally {
+    isUploadingQCM.value = false
+  }
+}
+
 const openTATViewer = async () => {
   showTATViewer.value = true
   if (tatQuestions.value.length === 0) await fetchTAT()
+}
+
+const openQCMViewer = async () => {
+  showQCMViewer.value = true
+  if (qcmQuestions.value.length === 0) await fetchQCM()
 }
 
 const closeTATViewer = () => {
   showTATViewer.value = false
 }
 
+const closeQCMViewer = () => {
+  showQCMViewer.value = false
+}
+
 const toggleTAT = (id) => {
   openTATId.value = openTATId.value === id ? null : id
+}
+
+const toggleQCM = (id) => {
+  openQCMId.value = openQCMId.value === id ? null : id
 }
 
 const deleteTAT = async (id) => {
@@ -679,9 +947,23 @@ const deleteTAT = async (id) => {
   }
 }
 
+const deleteQCM = async (id) => {
+  if (!confirm('Supprimer cette question QCM ?')) return
+  error.value = ''
+  successMessage.value = ''
+  try {
+    await apiFetch(`${apiBase}/api/qcm/${id}`, { method: 'DELETE' })
+    qcmQuestions.value = qcmQuestions.value.filter(q => q.id !== id)
+    if (openQCMId.value === id) openQCMId.value = qcmQuestions.value[0]?.id ?? null
+    successMessage.value = 'Question QCM supprimée'
+  } catch (e) {
+    error.value = e.message || 'Erreur suppression question QCM'
+  }
+}
+
 // ---------- Navigation ----------
 const refreshAll = async () => {
-  await Promise.all([fetchCours(), fetchPages(), fetchTAT()])
+  await Promise.all([fetchCours(), fetchPages(), fetchTAT(), fetchQCM()])
 }
 const goBack = () => router.go(-1)
 
@@ -698,7 +980,7 @@ onMounted(async () => {
     router.push('/login')
     return
   }
-  await Promise.all([fetchCours(), fetchPages(), fetchTAT()])
+  await Promise.all([fetchCours(), fetchPages(), fetchTAT(), fetchQCM()])
 })
 </script>
 
@@ -790,6 +1072,7 @@ onMounted(async () => {
 
 /* Accordion */
 .tat-accordion{ display:grid; gap:10px; }
+.qcm-accordion{ display:grid; gap:10px; }
 .acc-item{ border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fff; }
 .acc-item.open{ border-color:#d8ddff; box-shadow:0 8px 20px rgba(0,0,0,.06); }
 .acc-head{ width:100%; border:none; background:#fafafa; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px; cursor:pointer; }
