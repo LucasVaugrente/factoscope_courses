@@ -8,7 +8,7 @@ import csv
 import io
 
 # Import des routeurs
-from .routes import text_a_trou
+from .routes import text_a_true, qcm, jeu_classement
 
 from . import models, schemas
 from .database import engine, get_db
@@ -280,54 +280,8 @@ def delete_page(page_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Page supprimée avec succès"}
 
-# ==================== ROUTES QCM ====================
+# Inclure les routeurs
+app.include_router(text_a_true.router)
+app.include_router(qcm.router)
+app.include_router(jeu_classement.router)
 
-@app.get("/api/qcm", response_model=List[schemas.QCM])
-def get_qcm(db: Session = Depends(get_db)):
-    """Récupérer tous les QCM"""
-    return db.query(models.QCM).all()
-
-@app.get("/api/qcm/{qcm_id}", response_model=schemas.QCM)
-def get_qcm_by_id(qcm_id: int, db: Session = Depends(get_db)):
-    """Récupérer un QCM par son ID"""
-    qcm = db.query(models.QCM).filter(models.QCM.id == qcm_id).first()
-    if not qcm:
-        raise HTTPException(status_code=404, detail="QCM non trouvé")
-    return qcm
-
-@app.post("/api/qcm", response_model=schemas.QCM)
-def create_qcm(qcm: schemas.QCMCreate, db: Session = Depends(get_db)):
-    """Créer un nouveau QCM"""
-    db_qcm = models.QCM(**qcm.dict())
-    db.add(db_qcm)
-    db.commit()
-    db.refresh(db_qcm)
-    return db_qcm
-
-@app.put("/api/qcm/{qcm_id}", response_model=schemas.QCM)
-def update_qcm(qcm_id: int, qcm: schemas.QCMCreate, db: Session = Depends(get_db)):
-    """Modifier un QCM existant"""
-    db_qcm = db.query(models.QCM).filter(models.QCM.id == qcm_id).first()
-    if not db_qcm:
-        raise HTTPException(status_code=404, detail="QCM non trouvé")
-    
-    for key, value in qcm.dict().items():
-        setattr(db_qcm, key, value)
-    
-    db.commit()
-    db.refresh(db_qcm)
-    return db_qcm
-
-@app.delete("/api/qcm/{qcm_id}")
-def delete_qcm(qcm_id: int, db: Session = Depends(get_db)):
-    """Supprimer un QCM"""
-    db_qcm = db.query(models.QCM).filter(models.QCM.id == qcm_id).first()
-    if not db_qcm:
-        raise HTTPException(status_code=404, detail="QCM non trouvé")
-    
-    db.delete(db_qcm)
-    db.commit()
-    return {"message": "QCM supprimé avec succès"}
-
-# Inclure le routeur Texte à Trou
-app.include_router(text_a_trou.router)

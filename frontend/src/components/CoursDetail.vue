@@ -74,7 +74,12 @@
               <textarea v-model="editingForm.description" class="textarea" rows="3"
                 placeholder="Description"></textarea>
 
-              <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des virgules" />
+              <input
+                v-model="editingForm.medias"
+                class="input"
+                placeholder="URLs médias séparées par des 'at' "
+              />
+
 
               <div class="card-actions">
                 <UiButton variant="ghost" @click="cancelEdit" :disabled="isSaving">Annuler</UiButton>
@@ -119,12 +124,20 @@
             <p class="meta">Clique pour voir (liste déroulante)</p>
           </div>
 
-          <!-- QCM placeholder -->
-          <div class="card game-card disabled">
+          <!-- QCM -->
+          <div class="card game-card" @click="openQCMViewer">
             <div class="card-icon">📝</div>
             <h3>QCM</h3>
-            <p class="description">Bientôt disponible</p>
-            <p class="meta">À connecter après</p>
+            <p class="description">{{ qcmQuestions.length }} question(s)</p>
+            <p class="meta">Clique pour voir (liste déroulante)</p>
+          </div>
+
+          <!-- Jeu à Classement -->
+          <div class="card game-card" @click="openClassementViewer">
+            <div class="card-icon">🏆</div>
+            <h3>Jeu à Classement</h3>
+            <p class="description">{{ classementQuestions.length }} question(s)</p>
+            <p class="meta">Clique pour voir (liste déroulante)</p>
           </div>
         </div>
       </div>
@@ -142,9 +155,14 @@
         </label>
 
         <label class="field">
-          <span>Médias (URLs séparées par des virgules)</span>
-          <input v-model="newPageForm.medias" class="input"
-            placeholder="https://.../image.jpg, https://.../video.mp4" />
+          <span>Médias (URLs séparées par des "at")</span>
+          <input
+            v-model="newPageForm.medias"
+            class="input"
+            placeholder="https://.../image.jp@ https://.../video.mp4"
+          />
+=======
+        
         </label>
 
         <div class="card-actions" style="margin-top: 16px;">
@@ -175,6 +193,12 @@
             <div class="game-emoji">✅</div>
             <div class="game-title">Texte à Trou</div>
             <div class="game-desc">4 réponses + bonne réponse</div>
+          </button>
+
+          <button class="game-tile" @click="chooseGame('classement')">
+            <div class="game-emoji">🏆</div>
+            <div class="game-title">Jeu à Classement</div>
+            <div class="game-desc">Classer des éléments (texte/images)</div>
           </button>
         </div>
 
@@ -212,7 +236,69 @@
       </div>
     </div>
 
-    <!-- Modal: Viewer Texte à Trou (accordion) -->
+
+    <!-- Modal: Upload QCM -->
+    <div v-if="showUploadQCM" class="modal-backdrop" @click="closeUploadQCM">
+      <div class="modal" @click.stop>
+        <h3>Importer QCM (CSV)</h3>
+        <p class="subtitle" style="margin-top:6px;">
+          Format : <code>question;rep1;rep2;rep3;rep4;solution</code>
+        </p>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Fichier CSV</span>
+            <input class="input" type="file" accept=".csv,text/csv" @change="onQCMFileChange" />
+          </label>
+        </div>
+
+        <div v-if="uploadError" class="error-bar" style="margin-top:10px;">
+          {{ uploadError }}
+        </div>
+
+        <div class="card-actions" style="margin-top:16px;">
+          <UiButton variant="ghost" @click="closeUploadQCM" :disabled="isUploadingQCM">Annuler</UiButton>
+          <UiButton variant="primary" @click="submitQCMUpload" :disabled="!qcmFile || isUploadingQCM">
+            {{ isUploadingQCM ? 'Import en cours...' : 'Importer' }}
+          </UiButton>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Upload Jeu à Classement -->
+    <div v-if="showUploadClassement" class="modal-backdrop" @click="closeUploadClassement">
+      <div class="modal" @click.stop>
+        <h3>Importer Jeu à Classement (CSV)</h3>
+        <p class="subtitle" style="margin-top:6px;">
+          Format : <code>question;element1;element2;element3;element4;ordre_solution;type_elements</code>
+        </p>
+        <p class="subtitle" style="margin-top:4px; font-size:12px; color:#666;">
+          Exemple ordre: <code>2&lt;1&lt;4&lt;3</code> | Type: <code>texte</code> ou <code>images</code>
+        </p>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Fichier CSV</span>
+            <input class="input" type="file" accept=".csv,text/csv" @change="onClassementFileChange" />
+          </label>
+        </div>
+
+        <div v-if="uploadError" class="error-bar" style="margin-top:10px;">
+          {{ uploadError }}
+        </div>
+
+        <div class="card-actions" style="margin-top:16px;">
+          <UiButton variant="ghost" @click="closeUploadClassement" :disabled="isUploadingClassement">Annuler</UiButton>
+          <UiButton variant="primary" @click="submitClassementUpload" :disabled="!classementFile || isUploadingClassement">
+            {{ isUploadingClassement ? 'Import en cours...' : 'Importer' }}
+          </UiButton>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Viewer Text à True (accordion) -->
+=======
+   
     <div v-if="showTATViewer" class="modal-backdrop" @click="closeTATViewer">
       <div class="modal modal-big" @click.stop>
         <div class="modal-top">
@@ -326,6 +412,254 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal: Viewer QCM (accordion) -->
+    <div v-if="showQCMViewer" class="modal-backdrop" @click="closeQCMViewer">
+      <div class="modal modal-big" @click.stop>
+        <div class="modal-top">
+          <div>
+            <h3 style="margin:0;">QCM — Questions</h3>
+            <p class="subtitle" style="margin:6px 0 0;">
+              Clique sur une question pour dérouler les réponses.
+            </p>
+          </div>
+
+          <div class="modal-top-actions">
+            <UiButton variant="ghost" @click="showUploadQCM = true">Importer CSV</UiButton>
+            <button class="close-x" @click="closeQCMViewer">×</button>
+          </div>
+        </div>
+
+        <div v-if="isLoadingQCM" class="loading" style="margin-top:12px;">
+          <span class="spinner"></span> Chargement...
+        </div>
+
+        <div v-else-if="qcmQuestions.length === 0" class="empty" style="margin-top:12px;">
+          <p>Aucune question QCM importée pour ce cours.</p>
+          <UiButton variant="primary" @click="showUploadQCM = true">Importer CSV</UiButton>
+        </div>
+
+        <div v-else class="qcm-accordion" style="margin-top:12px;">
+          <div
+            v-for="(q, i) in qcmQuestions"
+            :key="q.id"
+            class="acc-item"
+            :class="{ open: openQCMId === q.id }"
+          >
+            <!-- Header -->
+            <button class="acc-head" @click="toggleQCM(q.id)">
+              <div class="acc-left">
+                <span class="acc-index">#{{ i + 1 }}</span>
+                <span class="acc-text">{{ q.question }}</span>
+              </div>
+
+              <div class="acc-right">
+                <span class="pill">Solution : {{ q.soluce }}</span>
+                <span class="chev">{{ openQCMId === q.id ? '▾' : '▸' }}</span>
+              </div>
+            </button>
+
+            <!-- Body -->
+            <div v-if="openQCMId === q.id" class="acc-body">
+              <!-- MODE EDIT -->
+              <div v-if="editingQCMId === q.id" class="edit-box">
+                <label>Question</label>
+                <textarea v-model="qcmEditForm.question" class="textarea" rows="2"></textarea>
+
+                <label>Réponse 1</label>
+                <input v-model="qcmEditForm.rep1" class="input"/>
+
+                <label>Réponse 2</label>
+                <input v-model="qcmEditForm.rep2" class="input"/>
+
+                <label>Réponse 3</label>
+                <input v-model="qcmEditForm.rep3" class="input"/>
+
+                <label>Réponse 4</label>
+                <input v-model="qcmEditForm.rep4" class="input"/>
+
+                <label>Solution (1-4)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="4"
+                  v-model.number="qcmEditForm.soluce"
+                  class="input"
+                />
+
+                <div class="card-actions">
+                  <UiButton variant="ghost" @click="cancelEditQCM">Annuler</UiButton>
+                  <UiButton variant="primary" @click="saveEditQCM(q.id)">Enregistrer</UiButton>
+                </div>
+              </div>
+
+              <!-- MODE VIEW -->
+              <div v-else>
+                <div class="answers">
+                  <div class="answer" :class="{ correct: q.soluce === 1 }">
+                    <span class="answer-letter">1)</span>
+                    <span>{{ q.rep1 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.soluce === 2 }">
+                    <span class="answer-letter">2)</span>
+                    <span>{{ q.rep2 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.soluce === 3 }">
+                    <span class="answer-letter">3)</span>
+                    <span>{{ q.rep3 }}</span>
+                  </div>
+                  <div class="answer" :class="{ correct: q.soluce === 4 }">
+                    <span class="answer-letter">4)</span>
+                    <span>{{ q.rep4 }}</span>
+                  </div>
+                </div>
+
+                <div class="acc-actions">
+                  <UiButton variant="ghost" @click="startEditQCM(q)">✏️ Modifier</UiButton>
+                  <button class="danger" @click="deleteQCM(q.id)">Supprimer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-lite">
+          <UiButton variant="ghost" @click="closeQCMViewer">Fermer</UiButton>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Viewer Jeu à Classement (accordion) -->
+    <div v-if="showClassementViewer" class="modal-backdrop" @click="closeClassementViewer">
+      <div class="modal modal-big" @click.stop>
+        <div class="modal-top">
+          <div>
+            <h3 style="margin:0;">Jeu à Classement — Questions</h3>
+            <p class="subtitle" style="margin:6px 0 0;">
+              Clique sur une question pour dérouler les éléments à classer.
+            </p>
+          </div>
+
+          <div class="modal-top-actions">
+            <UiButton variant="ghost" @click="showUploadClassement = true">Importer CSV</UiButton>
+            <button class="close-x" @click="closeClassementViewer">×</button>
+          </div>
+        </div>
+
+        <div v-if="isLoadingClassement" class="loading" style="margin-top:12px;">
+          <span class="spinner"></span> Chargement...
+        </div>
+
+        <div v-else-if="classementQuestions.length === 0" class="empty" style="margin-top:12px;">
+          <p>Aucune question de classement importée pour ce cours.</p>
+          <UiButton variant="primary" @click="showUploadClassement = true">Importer CSV</UiButton>
+        </div>
+
+        <div v-else class="classement-accordion" style="margin-top:12px;">
+          <div
+            v-for="(q, i) in classementQuestions"
+            :key="q.id"
+            class="acc-item"
+            :class="{ open: openClassementId === q.id }"
+          >
+            <!-- Header -->
+            <button class="acc-head" @click="toggleClassement(q.id)">
+              <div class="acc-left">
+                <span class="acc-index">#{{ i + 1 }}</span>
+                <span class="acc-text">{{ q.question }}</span>
+              </div>
+
+              <div class="acc-right">
+                <span class="pill">{{ q.type_elements }}</span>
+                <span class="chev">{{ openClassementId === q.id ? '▾' : '▸' }}</span>
+              </div>
+            </button>
+
+            <!-- Body -->
+            <div v-if="openClassementId === q.id" class="acc-body">
+              <!-- MODE EDIT -->
+              <div v-if="editingClassementId === q.id" class="edit-box">
+                <label>Question</label>
+                <textarea v-model="classementEditForm.question" class="textarea" rows="2"></textarea>
+
+                <label>Élément 1</label>
+                <input v-model="classementEditForm.element1" class="input"/>
+
+                <label>Élément 2</label>
+                <input v-model="classementEditForm.element2" class="input"/>
+
+                <label>Élément 3</label>
+                <input v-model="classementEditForm.element3" class="input"/>
+
+                <label>Élément 4</label>
+                <input v-model="classementEditForm.element4" class="input"/>
+
+                <label>Ordre solution (ex: 2&lt;1&lt;4&lt;3)</label>
+                <input v-model="classementEditForm.ordre_solution" class="input"/>
+
+                <label>Type d'éléments</label>
+                <select v-model="classementEditForm.type_elements" class="input">
+                  <option value="texte">Texte</option>
+                  <option value="images">Images</option>
+                </select>
+
+                <div class="card-actions">
+                  <UiButton variant="ghost" @click="cancelEditClassement">Annuler</UiButton>
+                  <UiButton variant="primary" @click="saveEditClassement(q.id)">Enregistrer</UiButton>
+                </div>
+              </div>
+
+              <!-- MODE VIEW -->
+              <div v-else>
+                <div class="elements">
+                  <div class="element">
+                    <span class="element-number">1)</span>
+                    <span v-if="q.type_elements === 'images'">
+                      <img :src="q.element1" alt="Élément 1" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                    </span>
+                    <span v-else>{{ q.element1 }}</span>
+                  </div>
+                  <div class="element">
+                    <span class="element-number">2)</span>
+                    <span v-if="q.type_elements === 'images'">
+                      <img :src="q.element2" alt="Élément 2" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                    </span>
+                    <span v-else>{{ q.element2 }}</span>
+                  </div>
+                  <div class="element">
+                    <span class="element-number">3)</span>
+                    <span v-if="q.type_elements === 'images'">
+                      <img :src="q.element3" alt="Élément 3" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                    </span>
+                    <span v-else>{{ q.element3 }}</span>
+                  </div>
+                  <div class="element">
+                    <span class="element-number">4)</span>
+                    <span v-if="q.type_elements === 'images'">
+                      <img :src="q.element4" alt="Élément 4" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                    </span>
+                    <span v-else>{{ q.element4 }}</span>
+                  </div>
+                </div>
+
+                <div class="solution-info" style="margin-top:12px; padding:8px; background:#f0f4ff; border-radius:8px; font-size:14px;">
+                  <strong>Ordre solution :</strong> {{ q.ordre_solution }}
+                </div>
+
+                <div class="acc-actions">
+                  <UiButton variant="ghost" @click="startEditClassement(q)">✏️ Modifier</UiButton>
+                  <button class="danger" @click="deleteClassement(q.id)">Supprimer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-lite">
+          <UiButton variant="ghost" @click="closeClassementViewer">Fermer</UiButton>
+        </div>
+      </div>
+    </div>
   </AppLayout>
 </template>
 
@@ -356,16 +690,30 @@ const isBusy = computed(() => isLoadingCours.value || isLoadingPages.value)
 // ---------- Jeux ----------
 const showGamePicker = ref(false)
 const showUploadTAT = ref(false)
+const showUploadQCM = ref(false)
+const showUploadClassement = ref(false)
 const uploadError = ref('')
 const tatFile = ref(null)
+const qcmFile = ref(null)
+const classementFile = ref(null)
 const isUploadingTAT = ref(false)
+const isUploadingQCM = ref(false)
+const isUploadingClassement = ref(false)
 
 const showTATViewer = ref(false)
+const showQCMViewer = ref(false)
+const showClassementViewer = ref(false)
 const isLoadingTAT = ref(false)
+const isLoadingQCM = ref(false)
+const isLoadingClassement = ref(false)
 const tatQuestions = ref([])
+const qcmQuestions = ref([])
+const classementQuestions = ref([])
 
 // accordion state
 const openTATId = ref(null)
+const openQCMId = ref(null)
+const openClassementId = ref(null)
 
 // ---------- Pages forms ----------
 const showAddModal = ref(false)
@@ -381,6 +729,25 @@ const tatEditForm = ref({
   reponse4: '',
   numero_reponse_correcte: 1,
   explication: ''
+})
+const editingQCMId = ref(null)
+const qcmEditForm = ref({
+  question: '',
+  rep1: '',
+  rep2: '',
+  rep3: '',
+  rep4: '',
+  soluce: 1
+})
+const editingClassementId = ref(null)
+const classementEditForm = ref({
+  question: '',
+  element1: '',
+  element2: '',
+  element3: '',
+  element4: '',
+  ordre_solution: '',
+  type_elements: 'texte'
 })
 const startEditTAT = (q) => {
   editingTATId.value = q.id
@@ -413,6 +780,73 @@ const saveEditTAT = async (id) => {
 
   } catch (e) {
     error.value = e.message || "Erreur modification question"
+  }
+}
+
+const startEditQCM = (q) => {
+  editingQCMId.value = q.id
+  qcmEditForm.value = {
+    question: q.question,
+    rep1: q.rep1,
+    rep2: q.rep2,
+    rep3: q.rep3,
+    rep4: q.rep4,
+    soluce: q.soluce
+  }
+  openQCMId.value = q.id
+}
+
+const cancelEditQCM = () => {
+  editingQCMId.value = null
+}
+
+const saveEditQCM = async (id) => {
+  try {
+    await apiFetch(`${apiBase}/api/qcm/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(qcmEditForm.value)
+    })
+
+    successMessage.value = "Question QCM mise à jour"
+    editingQCMId.value = null
+    await fetchQCM()
+
+  } catch (e) {
+    error.value = e.message || "Erreur modification question QCM"
+  }
+}
+
+const startEditClassement = (q) => {
+  editingClassementId.value = q.id
+  classementEditForm.value = {
+    question: q.question,
+    element1: q.element1,
+    element2: q.element2,
+    element3: q.element3,
+    element4: q.element4,
+    ordre_solution: q.ordre_solution,
+    type_elements: q.type_elements
+  }
+  openClassementId.value = q.id
+}
+
+const cancelEditClassement = () => {
+  editingClassementId.value = null
+}
+
+const saveEditClassement = async (id) => {
+  try {
+    await apiFetch(`${apiBase}/api/jeu-classement/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(classementEditForm.value)
+    })
+
+    successMessage.value = "Question de classement mise à jour"
+    editingClassementId.value = null
+    await fetchClassement()
+
+  } catch (e) {
+    error.value = e.message || "Erreur modification question de classement"
   }
 }
 
@@ -490,6 +924,42 @@ const fetchTAT = async () => {
     openTATId.value = null
   } finally {
     isLoadingTAT.value = false
+  }
+}
+
+const fetchQCM = async () => {
+  if (!coursId.value) return
+  isLoadingQCM.value = true
+  error.value = ''
+  try {
+    const data = await apiFetch(`${apiBase}/api/qcm/${coursId.value}`, { method: 'GET' })
+    qcmQuestions.value = Array.isArray(data) ? data : []
+    // ouvrir automatiquement la première question si existe
+    openQCMId.value = qcmQuestions.value[0]?.id ?? null
+  } catch (e) {
+    error.value = e.message || 'Erreur chargement QCM'
+    qcmQuestions.value = []
+    openQCMId.value = null
+  } finally {
+    isLoadingQCM.value = false
+  }
+}
+
+const fetchClassement = async () => {
+  if (!coursId.value) return
+  isLoadingClassement.value = true
+  error.value = ''
+  try {
+    const data = await apiFetch(`${apiBase}/api/jeu-classement/${coursId.value}`, { method: 'GET' })
+    classementQuestions.value = Array.isArray(data) ? data : []
+    // ouvrir automatiquement la première question si existe
+    openClassementId.value = classementQuestions.value[0]?.id ?? null
+  } catch (e) {
+    error.value = e.message || 'Erreur chargement Jeu à Classement'
+    classementQuestions.value = []
+    openClassementId.value = null
+  } finally {
+    isLoadingClassement.value = false
   }
 }
 
@@ -576,7 +1046,8 @@ const closeGamePicker = () => (showGamePicker.value = false)
 const chooseGame = (type) => {
   showGamePicker.value = false
   if (type === 'tat') showUploadTAT.value = true
-  if (type === 'qcm') successMessage.value = 'QCM bientôt disponible ✅'
+  if (type === 'qcm') showUploadQCM.value = true
+  if (type === 'classement') showUploadClassement.value = true
 }
 
 const closeUploadTAT = () => {
@@ -585,8 +1056,28 @@ const closeUploadTAT = () => {
   tatFile.value = null
 }
 
+const closeUploadQCM = () => {
+  showUploadQCM.value = false
+  uploadError.value = ''
+  qcmFile.value = null
+}
+
+const closeUploadClassement = () => {
+  showUploadClassement.value = false
+  uploadError.value = ''
+  classementFile.value = null
+}
+
 const onTATFileChange = (e) => {
   tatFile.value = e.target.files?.[0] || null
+}
+
+const onQCMFileChange = (e) => {
+  qcmFile.value = e.target.files?.[0] || null
+}
+
+const onClassementFileChange = (e) => {
+  classementFile.value = e.target.files?.[0] || null
 }
 
 const submitTATUpload = async () => {
@@ -623,17 +1114,111 @@ const submitTATUpload = async () => {
   }
 }
 
+const submitQCMUpload = async () => {
+  if (!qcmFile.value) return
+  isUploadingQCM.value = true
+  uploadError.value = ''
+  error.value = ''
+  successMessage.value = ''
+
+  if (!qcmFile.value.name.toLowerCase().endsWith('.csv')) {
+    uploadError.value = 'Le fichier doit être .csv'
+    isUploadingQCM.value = false
+    return
+  }
+
+  try {
+    const fd = new FormData()
+    fd.append('file', qcmFile.value)
+
+    const res = await apiFetch(`${apiBase}/api/qcm/upload/${coursId.value}`, {
+      method: 'POST',
+      body: fd
+    })
+
+    successMessage.value = res?.message || 'Import QCM réussi'
+    showUploadQCM.value = false
+
+    await fetchQCM()
+    showQCMViewer.value = true
+  } catch (e) {
+    uploadError.value = e.message || 'Erreur import CSV QCM'
+  } finally {
+    isUploadingQCM.value = false
+  }
+}
+
+const submitClassementUpload = async () => {
+  if (!classementFile.value) return
+  isUploadingClassement.value = true
+  uploadError.value = ''
+  error.value = ''
+  successMessage.value = ''
+
+  if (!classementFile.value.name.toLowerCase().endsWith('.csv')) {
+    uploadError.value = 'Le fichier doit être .csv'
+    isUploadingClassement.value = false
+    return
+  }
+
+  try {
+    const fd = new FormData()
+    fd.append('file', classementFile.value)
+
+    const res = await apiFetch(`${apiBase}/api/jeu-classement/upload/${coursId.value}`, {
+      method: 'POST',
+      body: fd
+    })
+
+    successMessage.value = res?.message || 'Import Jeu à Classement réussi'
+    showUploadClassement.value = false
+
+    await fetchClassement()
+    showClassementViewer.value = true
+  } catch (e) {
+    uploadError.value = e.message || 'Erreur import CSV Jeu à Classement'
+  } finally {
+    isUploadingClassement.value = false
+  }
+}
+
 const openTATViewer = async () => {
   showTATViewer.value = true
   if (tatQuestions.value.length === 0) await fetchTAT()
+}
+
+const openQCMViewer = async () => {
+  showQCMViewer.value = true
+  if (qcmQuestions.value.length === 0) await fetchQCM()
+}
+
+const openClassementViewer = async () => {
+  showClassementViewer.value = true
+  if (classementQuestions.value.length === 0) await fetchClassement()
 }
 
 const closeTATViewer = () => {
   showTATViewer.value = false
 }
 
+const closeQCMViewer = () => {
+  showQCMViewer.value = false
+}
+
+const closeClassementViewer = () => {
+  showClassementViewer.value = false
+}
+
 const toggleTAT = (id) => {
   openTATId.value = openTATId.value === id ? null : id
+}
+
+const toggleQCM = (id) => {
+  openQCMId.value = openQCMId.value === id ? null : id
+}
+
+const toggleClassement = (id) => {
+  openClassementId.value = openClassementId.value === id ? null : id
 }
 
 const deleteTAT = async (id) => {
@@ -650,9 +1235,37 @@ const deleteTAT = async (id) => {
   }
 }
 
+const deleteQCM = async (id) => {
+  if (!confirm('Supprimer cette question QCM ?')) return
+  error.value = ''
+  successMessage.value = ''
+  try {
+    await apiFetch(`${apiBase}/api/qcm/${id}`, { method: 'DELETE' })
+    qcmQuestions.value = qcmQuestions.value.filter(q => q.id !== id)
+    if (openQCMId.value === id) openQCMId.value = qcmQuestions.value[0]?.id ?? null
+    successMessage.value = 'Question QCM supprimée'
+  } catch (e) {
+    error.value = e.message || 'Erreur suppression question QCM'
+  }
+}
+
+const deleteClassement = async (id) => {
+  if (!confirm('Supprimer cette question de classement ?')) return
+  error.value = ''
+  successMessage.value = ''
+  try {
+    await apiFetch(`${apiBase}/api/jeu-classement/${id}`, { method: 'DELETE' })
+    classementQuestions.value = classementQuestions.value.filter(q => q.id !== id)
+    if (openClassementId.value === id) openClassementId.value = classementQuestions.value[0]?.id ?? null
+    successMessage.value = 'Question de classement supprimée'
+  } catch (e) {
+    error.value = e.message || 'Erreur suppression question de classement'
+  }
+}
+
 // ---------- Navigation ----------
 const refreshAll = async () => {
-  await Promise.all([fetchCours(), fetchPages(), fetchTAT()])
+  await Promise.all([fetchCours(), fetchPages(), fetchTAT(), fetchQCM(), fetchClassement()])
 }
 const goBack = () => router.go(-1)
 
@@ -669,7 +1282,7 @@ onMounted(async () => {
     router.push('/login')
     return
   }
-  await Promise.all([fetchCours(), fetchPages(), fetchTAT()])
+  await Promise.all([fetchCours(), fetchPages(), fetchTAT(), fetchQCM(), fetchClassement()])
 })
 </script>
 
@@ -1026,169 +1639,44 @@ onMounted(async () => {
 }
 
 /* Accordion */
-.tat-accordion {
-  display: grid;
-  gap: 10px;
-}
+.tat-accordion{ display:grid; gap:10px; }
+.qcm-accordion{ display:grid; gap:10px; }
+.classement-accordion{ display:grid; gap:10px; }
+.acc-item{ border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fff; }
+.acc-item.open{ border-color:#d8ddff; box-shadow:0 8px 20px rgba(0,0,0,.06); }
+.acc-head{ width:100%; border:none; background:#fafafa; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px; cursor:pointer; }
+.acc-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+.acc-index{ font-weight:900; color:#667eea; background:#eef0ff; border-radius:999px; padding:4px 8px; font-size:12px; }
+.acc-text{ color:#222; font-weight:800; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.acc-right{ display:flex; align-items:center; gap:10px; }
+.chev{ font-size:18px; color:#667eea; font-weight:900; }
+.acc-body{ padding:14px; }
 
-.acc-item {
-  border: 1px solid #eee;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #fff;
-}
+/* Elements styling for classement */
+.elements{ display:grid; gap:8px; margin-bottom:12px; }
+.element{ display:flex; align-items:center; gap:8px; padding:8px; background:#f8f9fa; border-radius:8px; }
+.element-number{ font-weight:700; color:#667eea; min-width:20px; }
 
-.acc-item.open {
-  border-color: #d8ddff;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
-}
+.answers{ display:grid; gap:8px; }
+.answer{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background:#fafafa; border:1px solid #eee; }
+.answer.correct{ background:#f2fff7; border-color:#b6f2cb; }
+.answer-letter{ font-weight:900; color:#667eea; width:28px; }
 
-.acc-head {
-  width: 100%;
-  border: none;
-  background: #fafafa;
-  padding: 12px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
+.explain{ margin-top:10px; background:#fafafa; border-left:4px solid #667eea; padding:10px 12px; border-radius:12px; color:#444; }
+.acc-actions{ margin-top:12px; display:flex; justify-content:flex-end; }
 
-.acc-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
+.modal-footer-lite{ margin-top:16px; display:flex; justify-content:flex-end; }
 
-.acc-index {
-  font-weight: 900;
-  color: #667eea;
-  background: #eef0ff;
-  border-radius: 999px;
-  padding: 4px 8px;
-  font-size: 12px;
-}
+.skeleton{ position:relative; overflow:hidden; }
+.skeleton::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent); animation:shimmer 1.5s infinite; }
+.skeleton-line{ height:14px; background:#ececec; border-radius:6px; margin:8px 0; }
+.skeleton-line.title{ width:70%; height:18px; }
+.skeleton-line.short{ width:40%; }
+@keyframes shimmer{ 0%{ transform:translateX(-100%);} 100%{ transform:translateX(100%);} }
 
-.acc-text {
-  color: #222;
-  font-weight: 800;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+@media (max-width:768px){
+  .dashboard-grid{ grid-template-columns:1fr; }
+  .game-grid{ grid-template-columns:1fr; }
 
-.acc-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chev {
-  font-size: 18px;
-  color: #667eea;
-  font-weight: 900;
-}
-
-.acc-body {
-  padding: 14px;
-}
-
-.answers {
-  display: grid;
-  gap: 8px;
-}
-
-.answer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: #fafafa;
-  border: 1px solid #eee;
-}
-
-.answer.correct {
-  background: #f2fff7;
-  border-color: #b6f2cb;
-}
-
-.answer-letter {
-  font-weight: 900;
-  color: #667eea;
-  width: 28px;
-}
-
-.explain {
-  margin-top: 10px;
-  background: #fafafa;
-  border-left: 4px solid #667eea;
-  padding: 10px 12px;
-  border-radius: 12px;
-  color: #444;
-}
-
-.acc-actions {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.modal-footer-lite {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.skeleton {
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent);
-  animation: shimmer 1.5s infinite;
-}
-
-.skeleton-line {
-  height: 14px;
-  background: #ececec;
-  border-radius: 6px;
-  margin: 8px 0;
-}
-
-.skeleton-line.title {
-  width: 70%;
-  height: 18px;
-}
-
-.skeleton-line.short {
-  width: 40%;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@media (max-width:768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .game-grid {
-    grid-template-columns: 1fr;
-  }
 }
 </style>
