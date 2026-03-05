@@ -18,9 +18,6 @@ RUN npm install --legacy-peer-deps
 # Copier le reste des fichiers
 COPY . .
 
-# Construire l'application
-RUN npm run build
-
 # Exposer le port de développement
 EXPOSE 5173
 

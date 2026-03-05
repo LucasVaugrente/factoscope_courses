@@ -34,6 +34,7 @@ class Cours(CoursBase):
 # Schémas pour Page
 class PageBase(BaseModel):
     description: Optional[str] = None
+    content: Optional[str] = None
     medias: Optional[str] = ""
     est_vue: Optional[int] = 0
     id_cours: int
@@ -68,7 +69,7 @@ class QCM(QCMBase):
 
 
 
-class TextATrueOut(BaseModel):
+class TextATrouOut(BaseModel):
     id: int
     texte: str
     reponse1: str
