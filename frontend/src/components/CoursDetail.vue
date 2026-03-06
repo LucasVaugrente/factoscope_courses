@@ -153,8 +153,6 @@
         <label class="field">
           <span>Médias (URLs séparées par des "at")</span>
           <input v-model="newPageForm.medias" class="input" placeholder="https://.../image.jp@ https://.../video.mp4" />
-          =======
-
         </label>
 
         <div class="card-actions" style="margin-top: 16px;">
@@ -290,8 +288,6 @@
     </div>
 
     <!-- Modal: Viewer Text à True (accordion) -->
-    =======
-
     <div v-if="showTATViewer" class="modal-backdrop" @click="closeTATViewer">
       <div class="modal modal-big" @click.stop>
         <div class="modal-top">
