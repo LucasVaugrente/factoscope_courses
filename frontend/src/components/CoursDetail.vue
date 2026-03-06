@@ -74,11 +74,7 @@
               <textarea v-model="editingForm.description" class="textarea" rows="3"
                 placeholder="Description"></textarea>
 
-              <input
-                v-model="editingForm.medias"
-                class="input"
-                placeholder="URLs médias séparées par des 'at' "
-              />
+              <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des 'at' " />
 
 
               <div class="card-actions">
@@ -156,13 +152,9 @@
 
         <label class="field">
           <span>Médias (URLs séparées par des "at")</span>
-          <input
-            v-model="newPageForm.medias"
-            class="input"
-            placeholder="https://.../image.jp@ https://.../video.mp4"
-          />
-=======
-        
+          <input v-model="newPageForm.medias" class="input" placeholder="https://.../image.jp@ https://.../video.mp4" />
+          =======
+
         </label>
 
         <div class="card-actions" style="margin-top: 16px;">
@@ -289,7 +281,8 @@
 
         <div class="card-actions" style="margin-top:16px;">
           <UiButton variant="ghost" @click="closeUploadClassement" :disabled="isUploadingClassement">Annuler</UiButton>
-          <UiButton variant="primary" @click="submitClassementUpload" :disabled="!classementFile || isUploadingClassement">
+          <UiButton variant="primary" @click="submitClassementUpload"
+            :disabled="!classementFile || isUploadingClassement">
             {{ isUploadingClassement ? 'Import en cours...' : 'Importer' }}
           </UiButton>
         </div>
@@ -297,8 +290,8 @@
     </div>
 
     <!-- Modal: Viewer Text à True (accordion) -->
-=======
-   
+    =======
+
     <div v-if="showTATViewer" class="modal-backdrop" @click="closeTATViewer">
       <div class="modal modal-big" @click.stop>
         <div class="modal-top">
@@ -440,12 +433,7 @@
         </div>
 
         <div v-else class="qcm-accordion" style="margin-top:12px;">
-          <div
-            v-for="(q, i) in qcmQuestions"
-            :key="q.id"
-            class="acc-item"
-            :class="{ open: openQCMId === q.id }"
-          >
+          <div v-for="(q, i) in qcmQuestions" :key="q.id" class="acc-item" :class="{ open: openQCMId === q.id }">
             <!-- Header -->
             <button class="acc-head" @click="toggleQCM(q.id)">
               <div class="acc-left">
@@ -467,25 +455,19 @@
                 <textarea v-model="qcmEditForm.question" class="textarea" rows="2"></textarea>
 
                 <label>Réponse 1</label>
-                <input v-model="qcmEditForm.rep1" class="input"/>
+                <input v-model="qcmEditForm.rep1" class="input" />
 
                 <label>Réponse 2</label>
-                <input v-model="qcmEditForm.rep2" class="input"/>
+                <input v-model="qcmEditForm.rep2" class="input" />
 
                 <label>Réponse 3</label>
-                <input v-model="qcmEditForm.rep3" class="input"/>
+                <input v-model="qcmEditForm.rep3" class="input" />
 
                 <label>Réponse 4</label>
-                <input v-model="qcmEditForm.rep4" class="input"/>
+                <input v-model="qcmEditForm.rep4" class="input" />
 
                 <label>Solution (1-4)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="4"
-                  v-model.number="qcmEditForm.soluce"
-                  class="input"
-                />
+                <input type="number" min="1" max="4" v-model.number="qcmEditForm.soluce" class="input" />
 
                 <div class="card-actions">
                   <UiButton variant="ghost" @click="cancelEditQCM">Annuler</UiButton>
@@ -556,12 +538,8 @@
         </div>
 
         <div v-else class="classement-accordion" style="margin-top:12px;">
-          <div
-            v-for="(q, i) in classementQuestions"
-            :key="q.id"
-            class="acc-item"
-            :class="{ open: openClassementId === q.id }"
-          >
+          <div v-for="(q, i) in classementQuestions" :key="q.id" class="acc-item"
+            :class="{ open: openClassementId === q.id }">
             <!-- Header -->
             <button class="acc-head" @click="toggleClassement(q.id)">
               <div class="acc-left">
@@ -583,19 +561,19 @@
                 <textarea v-model="classementEditForm.question" class="textarea" rows="2"></textarea>
 
                 <label>Élément 1</label>
-                <input v-model="classementEditForm.element1" class="input"/>
+                <input v-model="classementEditForm.element1" class="input" />
 
                 <label>Élément 2</label>
-                <input v-model="classementEditForm.element2" class="input"/>
+                <input v-model="classementEditForm.element2" class="input" />
 
                 <label>Élément 3</label>
-                <input v-model="classementEditForm.element3" class="input"/>
+                <input v-model="classementEditForm.element3" class="input" />
 
                 <label>Élément 4</label>
-                <input v-model="classementEditForm.element4" class="input"/>
+                <input v-model="classementEditForm.element4" class="input" />
 
                 <label>Ordre solution (ex: 2&lt;1&lt;4&lt;3)</label>
-                <input v-model="classementEditForm.ordre_solution" class="input"/>
+                <input v-model="classementEditForm.ordre_solution" class="input" />
 
                 <label>Type d'éléments</label>
                 <select v-model="classementEditForm.type_elements" class="input">
@@ -615,34 +593,39 @@
                   <div class="element">
                     <span class="element-number">1)</span>
                     <span v-if="q.type_elements === 'images'">
-                      <img :src="q.element1" alt="Élément 1" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                      <img :src="q.element1" alt="Élément 1"
+                        style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;" />
                     </span>
                     <span v-else>{{ q.element1 }}</span>
                   </div>
                   <div class="element">
                     <span class="element-number">2)</span>
                     <span v-if="q.type_elements === 'images'">
-                      <img :src="q.element2" alt="Élément 2" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                      <img :src="q.element2" alt="Élément 2"
+                        style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;" />
                     </span>
                     <span v-else>{{ q.element2 }}</span>
                   </div>
                   <div class="element">
                     <span class="element-number">3)</span>
                     <span v-if="q.type_elements === 'images'">
-                      <img :src="q.element3" alt="Élément 3" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                      <img :src="q.element3" alt="Élément 3"
+                        style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;" />
                     </span>
                     <span v-else>{{ q.element3 }}</span>
                   </div>
                   <div class="element">
                     <span class="element-number">4)</span>
                     <span v-if="q.type_elements === 'images'">
-                      <img :src="q.element4" alt="Élément 4" style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;"/>
+                      <img :src="q.element4" alt="Élément 4"
+                        style="max-width:100px; max-height:100px; object-fit:cover; border-radius:8px;" />
                     </span>
                     <span v-else>{{ q.element4 }}</span>
                   </div>
                 </div>
 
-                <div class="solution-info" style="margin-top:12px; padding:8px; background:#f0f4ff; border-radius:8px; font-size:14px;">
+                <div class="solution-info"
+                  style="margin-top:12px; padding:8px; background:#f0f4ff; border-radius:8px; font-size:14px;">
                   <strong>Ordre solution :</strong> {{ q.ordre_solution }}
                 </div>
 
@@ -1639,44 +1622,202 @@ onMounted(async () => {
 }
 
 /* Accordion */
-.tat-accordion{ display:grid; gap:10px; }
-.qcm-accordion{ display:grid; gap:10px; }
-.classement-accordion{ display:grid; gap:10px; }
-.acc-item{ border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fff; }
-.acc-item.open{ border-color:#d8ddff; box-shadow:0 8px 20px rgba(0,0,0,.06); }
-.acc-head{ width:100%; border:none; background:#fafafa; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px; cursor:pointer; }
-.acc-left{ display:flex; align-items:center; gap:10px; min-width:0; }
-.acc-index{ font-weight:900; color:#667eea; background:#eef0ff; border-radius:999px; padding:4px 8px; font-size:12px; }
-.acc-text{ color:#222; font-weight:800; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.acc-right{ display:flex; align-items:center; gap:10px; }
-.chev{ font-size:18px; color:#667eea; font-weight:900; }
-.acc-body{ padding:14px; }
+.tat-accordion {
+  display: grid;
+  gap: 10px;
+}
+
+.qcm-accordion {
+  display: grid;
+  gap: 10px;
+}
+
+.classement-accordion {
+  display: grid;
+  gap: 10px;
+}
+
+.acc-item {
+  border: 1px solid #eee;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.acc-item.open {
+  border-color: #d8ddff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+}
+
+.acc-head {
+  width: 100%;
+  border: none;
+  background: #fafafa;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.acc-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.acc-index {
+  font-weight: 900;
+  color: #667eea;
+  background: #eef0ff;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.acc-text {
+  color: #222;
+  font-weight: 800;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.acc-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chev {
+  font-size: 18px;
+  color: #667eea;
+  font-weight: 900;
+}
+
+.acc-body {
+  padding: 14px;
+}
 
 /* Elements styling for classement */
-.elements{ display:grid; gap:8px; margin-bottom:12px; }
-.element{ display:flex; align-items:center; gap:8px; padding:8px; background:#f8f9fa; border-radius:8px; }
-.element-number{ font-weight:700; color:#667eea; min-width:20px; }
+.elements {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
 
-.answers{ display:grid; gap:8px; }
-.answer{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background:#fafafa; border:1px solid #eee; }
-.answer.correct{ background:#f2fff7; border-color:#b6f2cb; }
-.answer-letter{ font-weight:900; color:#667eea; width:28px; }
+.element {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
 
-.explain{ margin-top:10px; background:#fafafa; border-left:4px solid #667eea; padding:10px 12px; border-radius:12px; color:#444; }
-.acc-actions{ margin-top:12px; display:flex; justify-content:flex-end; }
+.element-number {
+  font-weight: 700;
+  color: #667eea;
+  min-width: 20px;
+}
 
-.modal-footer-lite{ margin-top:16px; display:flex; justify-content:flex-end; }
+.answers {
+  display: grid;
+  gap: 8px;
+}
 
-.skeleton{ position:relative; overflow:hidden; }
-.skeleton::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent); animation:shimmer 1.5s infinite; }
-.skeleton-line{ height:14px; background:#ececec; border-radius:6px; margin:8px 0; }
-.skeleton-line.title{ width:70%; height:18px; }
-.skeleton-line.short{ width:40%; }
-@keyframes shimmer{ 0%{ transform:translateX(-100%);} 100%{ transform:translateX(100%);} }
+.answer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fafafa;
+  border: 1px solid #eee;
+}
 
-@media (max-width:768px){
-  .dashboard-grid{ grid-template-columns:1fr; }
-  .game-grid{ grid-template-columns:1fr; }
+.answer.correct {
+  background: #f2fff7;
+  border-color: #b6f2cb;
+}
+
+.answer-letter {
+  font-weight: 900;
+  color: #667eea;
+  width: 28px;
+}
+
+.explain {
+  margin-top: 10px;
+  background: #fafafa;
+  border-left: 4px solid #667eea;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #444;
+}
+
+.acc-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-footer-lite {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line {
+  height: 14px;
+  background: #ececec;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.skeleton-line.title {
+  width: 70%;
+  height: 18px;
+}
+
+.skeleton-line.short {
+  width: 40%;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width:768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .game-grid {
+    grid-template-columns: 1fr;
+  }
 
 }
 </style>

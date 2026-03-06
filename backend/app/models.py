@@ -25,7 +25,7 @@ class Cours(Base):
     module = relationship("Module", back_populates="cours")
     pages = relationship("Page", back_populates="cours", cascade="all, delete-orphan")
     qcms = relationship("QCM", back_populates="cours", cascade="all, delete-orphan")
-    text_a_true = relationship("TextATrue", back_populates="cours", cascade="all, delete-orphan")
+    text_a_trou = relationship("TextATrou", back_populates="cours", cascade="all, delete-orphan")
     jeux_classement = relationship("JeuClassement", back_populates="cours", cascade="all, delete-orphan")
 
 
@@ -72,7 +72,7 @@ class TextATrou(Base):
     
     # Relations
 
-    cours = relationship("Cours", back_populates="text_a_true")
+    cours = relationship("Cours", back_populates="text_a_trou")
 
 class JeuClassement(Base):
     __tablename__ = "jeu_classement"
