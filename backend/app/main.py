@@ -8,7 +8,7 @@ import csv
 import io
 
 # Import des routeurs
-from .routes import text_a_true, qcm, jeu_classement
+from .routes import text_a_trou, qcm, jeu_classement
 
 from . import models, schemas
 from .database import engine, get_db
@@ -281,7 +281,7 @@ def delete_page(page_id: int, db: Session = Depends(get_db)):
     return {"message": "Page supprimée avec succès"}
 
 # Inclure les routeurs
-app.include_router(text_a_true.router)
+app.include_router(text_a_trou.router)
 app.include_router(qcm.router)
 app.include_router(jeu_classement.router)
 
