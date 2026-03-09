@@ -77,6 +77,7 @@
           <p class="meta" v-if="course.id_module">Module lié : #{{ course.id_module }}</p>
           <div class="card-actions">
             <button class="primary" @click="viewCours(course.id)">Éditer</button>
+            <button class="danger" @click="deleteCours(course.id)">Supprimer</button>
           </div>
         </div>
       </div>
@@ -88,21 +89,20 @@
               <th>Titre du cours</th>
               <th>Description</th>
               <th>Contenu</th>
-              <th>Module lié</th>
               <th>Raccourci</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!courses.length">
-              <td colspan="5" class="empty-row">Aucun cours disponible.</td>
+              <td colspan="4" class="empty-row">Aucun cours disponible.</td>
             </tr>
             <tr v-for="course in courses" :key="course.id">
               <td>{{ course.titre || '-' }}</td>
               <td>{{ course.description || '-' }}</td>
               <td>{{ course.contenu || '-' }}</td>
-              <td>{{ course.id_module ? `#${course.id_module}` : '-' }}</td>
               <td>
                 <button class="primary small" @click="viewCours(course.id)">Éditer</button>
+                <button class="danger small" @click="deleteCours(course.id)">Supprimer</button>
               </td>
             </tr>
           </tbody>
@@ -149,6 +149,21 @@ const fetchCourses = async () => {
 
 const viewCours = (courseId) => {
   router.push(`/cours/${courseId}`)
+}
+
+const deleteCours = async (courseId) => {
+  const confirmed = window.confirm('Supprimer ce cours ? Cette action est irréversible.')
+  if (!confirmed) return
+
+  try {
+    const res = await fetch(`${apiBase}/api/cours/${courseId}`, {
+      method: 'DELETE'
+    })
+    if (!res.ok) throw new Error('Impossible de supprimer le cours')
+    await fetchCourses()
+  } catch (err) {
+    error.value = err.message || 'Erreur lors de la suppression du cours'
+  }
 }
 
 const onFileChange = (e) => {
@@ -416,11 +431,16 @@ h3 {
 }
 
 .primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
+  min-height: 40px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   font-weight: 600;
 }
@@ -440,9 +460,30 @@ h3 {
   border-color: #b7c0f9;
 }
 
-.small {
+.primary.small,
+.danger.small {
   padding: 8px 12px;
   font-size: 0.9rem;
+  min-height: 36px;
+}
+
+.danger {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  min-height: 40px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.courses-table td .small + .small {
+  margin-left: 10px;
 }
 
 .input,
@@ -501,4 +542,6 @@ h3 {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
+
+
 </style>

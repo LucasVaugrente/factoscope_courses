@@ -13,11 +13,16 @@ defineProps({
 
 <style scoped>
 .primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
+  min-height: 40px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   font-weight: 600;
 }
