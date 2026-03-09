@@ -76,8 +76,7 @@ class TextATrouOut(BaseModel):
     reponse2: str
     reponse3: str
     reponse4: str
-    numero_reponse_correcte: int
-    explication: Optional[str] = None
+    soluce: int
     id_cours: int
 
     class Config:

@@ -66,34 +66,42 @@
           <UiButton variant="primary" @click="openAddModal">Ajouter votre première page</UiButton>
         </div>
 
-        <div v-else class="dashboard-grid">
-          <div v-for="page in pages" :key="page.id" class="card">
+        <div v-else class="pages-list">
+          <div v-for="page in pages" :key="page.id" class="page-item">
             <template v-if="editingPageId === page.id">
-              <h3>Modifier la page</h3>
+              <div class="page-edit">
+                <h3>Modifier la page</h3>
 
-              <textarea v-model="editingForm.description" class="textarea" rows="3"
-                placeholder="Description"></textarea>
+                <textarea v-model="editingForm.description" class="textarea" rows="3"
+                  placeholder="Description"></textarea>
 
-              <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des 'at' " />
+                <textarea v-model="editingForm.content" class="textarea" rows="5"
+                  placeholder="Contenu"></textarea>
+
+                <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des 'at' " />
 
 
-              <div class="card-actions">
-                <UiButton variant="ghost" @click="cancelEdit" :disabled="isSaving">Annuler</UiButton>
-                <button class="danger" @click="deletePage(page.id)" :disabled="isSaving">Supprimer</button>
-                <UiButton variant="primary" @click="savePage(page.id)" :disabled="isSaving">
-                  {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
-                </UiButton>
+                <div class="page-actions">
+                  <UiButton variant="ghost" @click="cancelEdit" :disabled="isSaving">Annuler</UiButton>
+                  <button class="danger" @click="deletePage(page.id)" :disabled="isSaving">Supprimer</button>
+                  <UiButton variant="primary" @click="savePage(page.id)" :disabled="isSaving">
+                    {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+                  </UiButton>
+                </div>
               </div>
             </template>
 
             <template v-else>
-              <div class="card-icon">📄</div>
-              <h3>{{ (page.description || 'Aucune description').slice(0, 60) }}</h3>
-              <p class="description">{{ page.description || '—' }}</p>
-              <p class="meta" v-if="page.medias">Médias : {{ page.medias }}</p>
-
-              <div class="card-actions">
-                <UiButton variant="primary" @click="startEdit(page)">Éditer</UiButton>
+              <div class="page-content">
+                <div class="page-header">
+                  <span class="page-icon">📄</span>
+                  <h3>{{ page.description || 'Aucune description' }}</h3>
+                  <UiButton variant="primary" @click="startEdit(page)">Éditer</UiButton>
+                </div>
+                <div class="page-body">
+                  <p v-if="page.content" class="content-text">{{ page.content }}</p>
+                  <p v-if="page.medias" class="media-info">Médias : {{ page.medias }}</p>
+                </div>
               </div>
             </template>
           </div>
@@ -148,6 +156,12 @@
           <span>Description</span>
           <textarea v-model="newPageForm.description" class="textarea" rows="3"
             placeholder="Décrivez le contenu de cette page"></textarea>
+        </label>
+
+        <label class="field">
+          <span>Contenu</span>
+          <textarea v-model="newPageForm.content" class="textarea" rows="5"
+            placeholder="Contenu détaillé de la page"></textarea>
         </label>
 
         <label class="field">
@@ -323,7 +337,7 @@
               </div>
 
               <div class="acc-right">
-                <span class="pill">Bonne : {{ q.numero_reponse_correcte }}</span>
+                <span class="pill">Bonne : {{ q.soluce }}</span>
                 <span class="chev">{{ openTATId === q.id ? '▾' : '▸' }}</span>
               </div>
             </button>
@@ -349,12 +363,10 @@
                 <input v-model="tatEditForm.reponse4" class="input" />
 
                 <label>Bonne réponse (1-4)</label>
-                <input type="number" min="1" max="4" v-model.number="tatEditForm.numero_reponse_correcte"
+                <input type="number" min="1" max="4" v-model.number="tatEditForm.soluce"
                   class="input" />
 
-                <label>Explication</label>
-                <textarea v-model="tatEditForm.explication" class="textarea" rows="2"></textarea>
-
+                
                 <div class="card-actions">
                   <UiButton variant="ghost" @click="cancelEditTAT">Annuler</UiButton>
                   <UiButton variant="primary" @click="saveEditTAT(q.id)">Enregistrer</UiButton>
@@ -364,27 +376,25 @@
               <!-- MODE VIEW -->
               <div v-else>
                 <div class="answers">
-                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 1 }">
+                  <div class="answer" :class="{ correct: q.soluce === 1 }">
                     <span class="answer-letter">1)</span>
                     <span>{{ q.reponse1 }}</span>
                   </div>
-                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 2 }">
+                  <div class="answer" :class="{ correct: q.soluce === 2 }">
                     <span class="answer-letter">2)</span>
                     <span>{{ q.reponse2 }}</span>
                   </div>
-                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 3 }">
+                  <div class="answer" :class="{ correct: q.soluce === 3 }">
                     <span class="answer-letter">3)</span>
                     <span>{{ q.reponse3 }}</span>
                   </div>
-                  <div class="answer" :class="{ correct: q.numero_reponse_correcte === 4 }">
+                  <div class="answer" :class="{ correct: q.soluce === 4 }">
                     <span class="answer-letter">4)</span>
                     <span>{{ q.reponse4 }}</span>
                   </div>
                 </div>
 
-                <p v-if="q.explication" class="explain">
-                  <strong>Explication :</strong> {{ q.explication }}
-                </p>
+             
 
                 <div class="acc-actions">
                   <UiButton variant="ghost" @click="startEditTAT(q)">✏️ Modifier</UiButton>
@@ -696,9 +706,9 @@ const openClassementId = ref(null)
 
 // ---------- Pages forms ----------
 const showAddModal = ref(false)
-const newPageForm = ref({ description: '', medias: '' })
+const newPageForm = ref({ description: '', content: '', medias: '' })
 const editingPageId = ref(null)
-const editingForm = ref({ description: '', medias: '' })
+const editingForm = ref({ description: '', content: '', medias: '' })
 const editingTATId = ref(null)
 const tatEditForm = ref({
   texte: '',
@@ -706,8 +716,7 @@ const tatEditForm = ref({
   reponse2: '',
   reponse3: '',
   reponse4: '',
-  numero_reponse_correcte: 1,
-  explication: ''
+  soluce: 1
 })
 const editingQCMId = ref(null)
 const qcmEditForm = ref({
@@ -736,8 +745,7 @@ const startEditTAT = (q) => {
     reponse2: q.reponse2,
     reponse3: q.reponse3,
     reponse4: q.reponse4,
-    numero_reponse_correcte: q.numero_reponse_correcte,
-    explication: q.explication || ''
+    soluce: q.soluce,
   }
   openTATId.value = q.id
 }
@@ -944,7 +952,7 @@ const fetchClassement = async () => {
 
 // ---------- Pages actions ----------
 const openAddModal = () => {
-  newPageForm.value = { description: '', medias: '' }
+  newPageForm.value = { description: '', content: '', medias: '' }
   showAddModal.value = true
 }
 const closeAddModal = () => (showAddModal.value = false)
@@ -960,6 +968,7 @@ const createPage = async () => {
       body: JSON.stringify({
         id_cours: coursId.value,
         description: newPageForm.value.description,
+        content: newPageForm.value.content,
         medias: newPageForm.value.medias
       })
     })
@@ -975,7 +984,11 @@ const createPage = async () => {
 
 const startEdit = (page) => {
   editingPageId.value = page.id
-  editingForm.value = { description: page.description || '', medias: page.medias || '' }
+  editingForm.value = { 
+    description: page.description || '', 
+    content: page.content || '', 
+    medias: page.medias || '' 
+  }
 }
 const cancelEdit = () => (editingPageId.value = null)
 
@@ -1374,6 +1387,73 @@ onMounted(async () => {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
   margin-top: 10px;
+}
+
+/* Pages List */
+.pages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.page-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.page-content {
+  padding: 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.page-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.page-header h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.page-body {
+  margin-left: 36px;
+}
+
+.content-text {
+  color: #555;
+  margin: 0 0 8px 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.media-info {
+  color: #777;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.page-edit {
+  padding: 16px;
+  background: #f8f9ff;
+}
+
+.page-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .card {

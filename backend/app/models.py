@@ -66,8 +66,7 @@ class TextATrou(Base):
     reponse2 = Column(String(255), nullable=False)
     reponse3 = Column(String(255), nullable=False)
     reponse4 = Column(String(255), nullable=False)
-    numero_reponse_correcte = Column(Integer, nullable=False)  # 1, 2, 3 ou 4
-    explication = Column(Text)
+    soluce = Column(Integer, nullable=False)  # 1, 2, 3 ou 4
     id_cours = Column(Integer, ForeignKey("cours.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     
     # Relations

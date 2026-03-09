@@ -135,14 +135,16 @@ async def upload_cours_csv(
     for row in data_rows:
         row = [clean(c) for c in row]
 
-        content = row[0] if len(row) >= 1 else ""
-        medias = row[1] if len(row) >= 2 else ""
+        description = row[0] if len(row) >= 1 else ""
+        content = row[1] if len(row) >= 2 else ""
+        medias = row[2] if len(row) >= 3 else ""
 
-        if not content and not medias:
+        if not description and not content and not medias:
             continue
 
         page = models.Page(
-            description=content,
+            description=description,
+            content=content,
             medias=medias,
             est_vue=0,
             id_cours=db_cours.id

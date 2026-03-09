@@ -35,7 +35,7 @@ async def upload_text_a_trou(
     """
     Upload CSV questions pour un cours.
     Format attendu (après éventuelle première ligne titre) :
-      texte;reponse1;reponse2;reponse3;reponse4;numero_reponse_correcte(1..4)
+      texte;reponse1;reponse2;reponse3;reponse4;soluce(1..4)
     """
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="Le fichier doit être au format CSV")
@@ -98,12 +98,12 @@ async def upload_text_a_trou(
                 correct_int = int(correct)
             except ValueError:
                 invalid_count += 1
-                logger.warning(f"Ligne {i} invalide: numero_reponse_correcte non numérique: {correct}")
+                logger.warning(f"Ligne {i} invalide: soluce non numérique: {correct}")
                 continue
 
             if correct_int not in (1, 2, 3, 4):
                 invalid_count += 1
-                logger.warning(f"Ligne {i} invalide: numero_reponse_correcte hors 1..4: {correct_int}")
+                logger.warning(f"Ligne {i} invalide: soluce hors 1..4: {correct_int}")
                 continue
 
             valid.append((texte, r1, r2, r3, r4, correct_int))
@@ -119,8 +119,7 @@ async def upload_text_a_trou(
                 reponse2=r2,
                 reponse3=r3,
                 reponse4=r4,
-                numero_reponse_correcte=correct_int,
-                explication=None,
+                soluce=correct_int,
                 id_cours=cours_id
             )
             db.add(q)
@@ -160,8 +159,7 @@ def get_text_a_trou_par_cours(cours_id: int, db: Session = Depends(get_db)):
             "reponse2": q.reponse2,
             "reponse3": q.reponse3,
             "reponse4": q.reponse4,
-            "numero_reponse_correcte": q.numero_reponse_correcte,
-            "explication": q.explication,
+            "soluce": q.soluce,
             "id_cours": q.id_cours,
         }
         for q in qs
@@ -186,8 +184,7 @@ class TextATrouUpdate(BaseModel):
     reponse2: Optional[str] = None
     reponse3: Optional[str] = None
     reponse4: Optional[str] = None
-    numero_reponse_correcte: Optional[int] = Field(default=None, ge=1, le=4)
-    explication: Optional[str] = None
+    soluce: Optional[int] = Field(default=None, ge=1, le=4)
 @router.put("/{question_id}")
 def update_text_a_trou(question_id: int, payload: TextATrouUpdate, db: Session = Depends(get_db)):
     q = db.query(models.TextATrou).filter(models.TextATrou.id == question_id).first()
@@ -197,10 +194,10 @@ def update_text_a_trou(question_id: int, payload: TextATrouUpdate, db: Session =
     data = payload.dict(exclude_unset=True)
 
     # petite validation
-    if "numero_reponse_correcte" in data and data["numero_reponse_correcte"] is not None:
-        n = data["numero_reponse_correcte"]
+    if "soluce" in data and data["soluce"] is not None:
+        n = data["soluce"]
         if n < 1 or n > 4:
-            raise HTTPException(status_code=400, detail="numero_reponse_correcte doit être entre 1 et 4")
+            raise HTTPException(status_code=400, detail="soluce doit être entre 1 et 4")
 
     for k, v in data.items():
         setattr(q, k, v)
@@ -215,7 +212,6 @@ def update_text_a_trou(question_id: int, payload: TextATrouUpdate, db: Session =
         "reponse2": q.reponse2,
         "reponse3": q.reponse3,
         "reponse4": q.reponse4,
-        "numero_reponse_correcte": q.numero_reponse_correcte,
-        "explication": q.explication,
+        "soluce": q.soluce,
         "id_cours": q.id_cours,
     }
