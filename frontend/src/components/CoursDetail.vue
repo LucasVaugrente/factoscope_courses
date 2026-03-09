@@ -70,23 +70,36 @@
           <div v-for="page in pages" :key="page.id" class="page-item">
             <template v-if="editingPageId === page.id">
               <div class="page-edit">
-                <h3>Modifier la page</h3>
+                <div class="page-header">
+                  <span class="page-icon">📄</span>
+                  <h3>Modifier : {{ page.description || 'Aucune description' }}</h3>
+                </div>
+                
+                <div class="edit-form">
+                  <label class="field">
+                    <span>Description</span>
+                    <textarea v-model="editingForm.description" class="textarea" rows="3"
+                      placeholder="Description"></textarea>
+                  </label>
 
-                <textarea v-model="editingForm.description" class="textarea" rows="3"
-                  placeholder="Description"></textarea>
+                  <label class="field">
+                    <span>Contenu</span>
+                    <textarea v-model="editingForm.content" class="textarea" rows="5"
+                      placeholder="Contenu"></textarea>
+                  </label>
 
-                <textarea v-model="editingForm.content" class="textarea" rows="5"
-                  placeholder="Contenu"></textarea>
+                  <label class="field">
+                    <span>Médias (URLs séparées par des "at")</span>
+                    <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des 'at' " />
+                  </label>
 
-                <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des 'at' " />
-
-
-                <div class="page-actions">
-                  <UiButton variant="ghost" @click="cancelEdit" :disabled="isSaving">Annuler</UiButton>
-                  <button class="danger" @click="deletePage(page.id)" :disabled="isSaving">Supprimer</button>
-                  <UiButton variant="primary" @click="savePage(page.id)" :disabled="isSaving">
-                    {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
-                  </UiButton>
+                  <div class="page-actions">
+                    <UiButton variant="ghost" @click="cancelEdit" :disabled="isSaving">Annuler</UiButton>
+                    <button class="danger" @click="deletePage(page.id)" :disabled="isSaving">Supprimer</button>
+                    <UiButton variant="primary" @click="savePage(page.id)" :disabled="isSaving">
+                      {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+                    </UiButton>
+                  </div>
                 </div>
               </div>
             </template>
@@ -99,8 +112,18 @@
                   <UiButton variant="primary" @click="startEdit(page)">Éditer</UiButton>
                 </div>
                 <div class="page-body">
-                  <p v-if="page.content" class="content-text">{{ page.content }}</p>
-                  <p v-if="page.medias" class="media-info">Médias : {{ page.medias }}</p>
+                  <div v-if="page.description" class="field-group">
+                    <span class="field-label">Description :</span>
+                    <p class="content-text">{{ page.description }}</p>
+                  </div>
+                  <div v-if="page.content" class="field-group">
+                    <span class="field-label">Contenu :</span>
+                    <p class="content-text">{{ page.content }}</p>
+                  </div>
+                  <div v-if="page.medias" class="field-group">
+                    <span class="field-label">Média :</span>
+                    <p class="media-info">{{ page.medias }}</p>
+                  </div>
                 </div>
               </div>
             </template>
@@ -1431,9 +1454,21 @@ onMounted(async () => {
   margin-left: 36px;
 }
 
+.field-group {
+  margin-bottom: 12px;
+}
+
+.field-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
 .content-text {
   color: #555;
-  margin: 0 0 8px 0;
+  margin: 0;
   white-space: pre-wrap;
   line-height: 1.5;
 }
@@ -1447,6 +1482,11 @@ onMounted(async () => {
 .page-edit {
   padding: 16px;
   background: #f8f9ff;
+}
+
+.edit-form {
+  margin-left: 36px;
+  margin-top: 12px;
 }
 
 .page-actions {
