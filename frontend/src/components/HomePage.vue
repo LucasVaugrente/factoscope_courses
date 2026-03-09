@@ -18,6 +18,10 @@
           <p class="subtitle">Cours issus de la base MariaDB</p>
         </div>
         <div class="actions">
+          <div class="view-toggle" role="group" aria-label="Mode d'affichage des cours">
+            <button class="ghost" :class="{ active: displayMode === 'cards' }" @click="displayMode = 'cards'">Boîtes</button>
+            <button class="ghost" :class="{ active: displayMode === 'table' }" @click="displayMode = 'table'">Tableau</button>
+          </div>
           <button class="primary" @click="showUpload = true">Ajouter cours</button>
           <button class="ghost" @click="fetchCourses" :disabled="isLoading">Actualiser</button>
         </div>
@@ -64,7 +68,7 @@
         </div>
       </div>
 
-      <div v-else class="dashboard-grid">
+      <div v-else-if="displayMode === 'cards'" class="dashboard-grid">
         <div v-for="course in courses" :key="course.id" class="card">
           <div class="card-icon">📘</div>
           <h3>{{ course.titre }}</h3>
@@ -75,6 +79,34 @@
             <button class="primary" @click="viewCours(course.id)">Éditer</button>
           </div>
         </div>
+      </div>
+
+      <div v-else class="table-wrapper">
+        <table class="courses-table">
+          <thead>
+            <tr>
+              <th>Titre du cours</th>
+              <th>Description</th>
+              <th>Contenu</th>
+              <th>Module lié</th>
+              <th>Raccourci</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!courses.length">
+              <td colspan="5" class="empty-row">Aucun cours disponible.</td>
+            </tr>
+            <tr v-for="course in courses" :key="course.id">
+              <td>{{ course.titre || '-' }}</td>
+              <td>{{ course.description || '-' }}</td>
+              <td>{{ course.contenu || '-' }}</td>
+              <td>{{ course.id_module ? `#${course.id_module}` : '-' }}</td>
+              <td>
+                <button class="primary small" @click="viewCours(course.id)">Éditer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>
@@ -92,6 +124,7 @@ const error = ref('')
 const showUpload = ref(false)
 const uploading = ref(false)
 const uploadError = ref('')
+const displayMode = ref('cards')
 const selectedFile = ref(null)
 const formTitre = ref('')
 const formDescription = ref('')
@@ -265,7 +298,14 @@ h2 {
 
 .actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 8px;
 }
 
 .modal-backdrop {
@@ -299,6 +339,43 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
   margin-top: 10px;
+}
+
+.table-wrapper {
+  margin-top: 10px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: auto;
+}
+
+.courses-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.courses-table th,
+.courses-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: top;
+}
+
+.courses-table thead th {
+  background: #fafbff;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.courses-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.empty-row {
+  text-align: center !important;
+  color: #666;
 }
 
 .card {
@@ -356,6 +433,16 @@ h3 {
   padding: 10px 14px;
   cursor: pointer;
   font-weight: 600;
+}
+
+.ghost.active {
+  background: #eef1ff;
+  border-color: #b7c0f9;
+}
+
+.small {
+  padding: 8px 12px;
+  font-size: 0.9rem;
 }
 
 .input,
