@@ -88,6 +88,49 @@ def seed_cours():
             # Ensure 3 pages
             current_pages = list(fresh.pages or [])
             for p_index in range(len(current_pages) + 1, 4):
+                if(cours1 == 0):
+                    if(p_index == 1):
+                        page = models.Page(
+                            description=f"Qu'est-ce qu'une source d'information ? {p_index}",
+                            content=(
+                                "Une source d'information est l'origine des données ou faits rapportés par les médias. "
+                                "Elle peut être un témoin direct, un document officiel, un expert ou un média reconnu. "
+                                "La fiabilité d'une source dépend de son indépendance, de sa transparence et de sa cohérence "
+                                "avec d'autres sources crédibles."
+                            ),
+                            medias="journaliste_interview.jpg",
+                            est_vue=0,
+                            id_cours=fresh.id,
+                        )
+                    if(p_index == 2):
+                        page = models.Page(
+                            description=f"Types de sources d'information {p_index}",
+                            content=("Les sources d'information peuvent être classées selon leur nature. "
+                                "Les sources primaires sont des témoignages directs et des documents originaux comme des rapports et des discours. "
+                                "Les sources secondaires sont des analyses et commentaires basés sur des sources primaires. "
+                                "Les sources tertiaires sont des compilations de sources secondaires, comme les encyclopédies. "
+
+                                "Comprendre la nature d'une source permet d'évaluer son degré de fiabilité."
+                            ),
+                            medias="source_primaire_secondaire.png",
+                            est_vue=0,
+                            id_cours=fresh.id,
+                        )
+                    if(p_index == 3):
+                        page = models.Page(
+                            description=f"Comment vérifier la fiabilité d'une source ? {p_index}",
+                            content=(
+                                "Vérifier la crédibilité d'une source nécessite une approche critique : Il est important d'identifier l'auteur et de s'assurer de son expertise. "
+
+                                "L'objectif de la source doit être analysé pour distinguer l'information de l'influence. Une information fiable peut être vérifiée par d'autres sources crédibles. "
+                                "L'ancienneté de la source joue aussi un rôle, une source récente pouvant être pertinente mais moins éprouvée."
+                            ),
+                            medias="fake_news_verification.png",
+                            est_vue=0,
+                            id_cours=fresh.id,
+                        )
+                    cours1 = 1
+            if(cours2 == 0):
                 if(p_index == 1):
                     page = models.Page(
                         description=f"Qu'est-ce qu'une source d'information ? {p_index}",
@@ -128,6 +171,7 @@ def seed_cours():
                         est_vue=0,
                         id_cours=fresh.id,
                     )
+                    cours2 = 1
                 db.add(page)
 
             if (cours1 == 0):
