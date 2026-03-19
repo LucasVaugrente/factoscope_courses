@@ -92,7 +92,7 @@
               <td>{{ course.titre || '-' }}</td>
               <td>{{ course.description || '-' }}</td>
               <td>{{ course.contenu || '-' }}</td>
-              <td>
+              <td class="buttons-cell">
                 <button class="primary small" @click="viewCours(course.id)">Éditer</button>
                 <button class="danger small" @click="deleteCours(course.id)">Supprimer</button>
               </td>
@@ -559,5 +559,9 @@ h3 {
 .csv-hint-sub {
   font-size: 0.82rem;
   color: #777;
+}
+
+.buttons-cell {
+  display: flex;
 }
 </style>

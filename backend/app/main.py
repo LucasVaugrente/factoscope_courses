@@ -96,7 +96,15 @@ async def upload_cours_csv(
         return (x or "").strip()
 
     raw = await file.read()
-    text = raw.decode("utf-8-sig")
+
+    for encoding in ['utf-8-sig', 'utf-8', 'windows-1252', 'latin-1']:
+        try:
+            text = raw.decode(encoding)
+            break
+        except (UnicodeDecodeError, LookupError):
+            continue
+    else:
+        raise HTTPException(400, "Impossible de décoder le fichier CSV. Sauvegardez-le en UTF-8 et réessayez.")
 
     reader = csv.reader(io.StringIO(text), delimiter=';')
     rows = [row for row in reader if any(clean(c) for c in row)]
