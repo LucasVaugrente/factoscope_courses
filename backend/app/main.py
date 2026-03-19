@@ -107,24 +107,59 @@ async def upload_cours_csv(
     is_form_mode = any([clean(titre), clean(description), clean(thematique)])
 
     first = [clean(c) for c in rows[0]]
-    csv_has_header = len(first) >= 3 and first[0] and first[1] and first[2]
-
+    csv_has_header = len(first) >= 3 and first[0] and first[2]
+    
     if is_form_mode:
         course_title = clean(titre)
         course_description = clean(description)
-        course_thematique = clean(thematique)
-        data_rows = rows
+        module_name = clean(thematique)
+        module_description = None 
+        data_rows = rows[1:]
     else:
         if not csv_has_header:
-            raise HTTPException(400, "CSV invalide")
-        course_title, course_description, course_thematique = first[:3]
+            raise HTTPException(
+                400,
+                "CSV invalide : l'en-tête doit contenir au moins 3 colonnes (titre; description; module)"
+            )
+        course_title = first[0]
+        course_description = first[1] if len(first) >= 2 else ""
+        module_name = first[2]
+        module_description = first[3] if len(first) >= 4 else None
         data_rows = rows[1:]
+
+    # Résolution ou création du module
+    id_module = None
+    if module_name:
+        db_module = db.query(models.Module).filter(
+            models.Module.titre == module_name
+        ).first()
+
+        if db_module:
+            id_module = db_module.id
+
+        elif module_description:
+            db_module = models.Module(
+                titre=module_name,
+                description=module_description,
+            )
+            db.add(db_module)
+            db.commit()
+            db.refresh(db_module)
+            id_module = db_module.id
+
+        else:
+            raise HTTPException(
+                400,
+                f"Le module \"{module_name}\" n'existe pas en base de données. "
+                f"Pour le créer automatiquement, ajoutez sa description en 4ème colonne de l'en-tête de votre CSV : "
+                f"titre; description_cours; {module_name}; description_du_module"
+            )
 
     db_cours = models.Cours(
         titre=course_title,
         description=course_description,
         contenu=course_description,
-        id_module=None
+        id_module=id_module
     )
     db.add(db_cours)
     db.commit()
@@ -134,7 +169,6 @@ async def upload_cours_csv(
 
     for row in data_rows:
         row = [clean(c) for c in row]
-
         description = row[0] if len(row) >= 1 else ""
         content = row[1] if len(row) >= 2 else ""
         medias = row[2] if len(row) >= 3 else ""
@@ -154,11 +188,10 @@ async def upload_cours_csv(
 
     if created_pages == 0:
         db.rollback()
-        raise HTTPException(400, "Aucune page valide")
+        raise HTTPException(400, "Aucune page valide trouvée dans le CSV")
 
     db.commit()
     return db_cours
-
 @app.put("/api/cours/{cours_id}", response_model=schemas.Cours)
 def update_cours(cours_id: int, cours: schemas.CoursCreate, db: Session = Depends(get_db)):
     """Modifier un cours existant"""

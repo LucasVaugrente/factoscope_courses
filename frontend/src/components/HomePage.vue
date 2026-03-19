@@ -19,8 +19,10 @@
         </div>
         <div class="actions">
           <div class="view-toggle" role="group" aria-label="Mode d'affichage des cours">
-            <button class="ghost" :class="{ active: displayMode === 'cards' }" @click="displayMode = 'cards'">Boîtes</button>
-            <button class="ghost" :class="{ active: displayMode === 'table' }" @click="displayMode = 'table'">Tableau</button>
+            <button class="ghost" :class="{ active: displayMode === 'cards' }"
+              @click="displayMode = 'cards'">Boîtes</button>
+            <button class="ghost" :class="{ active: displayMode === 'table' }"
+              @click="displayMode = 'table'">Tableau</button>
           </div>
           <button class="primary" @click="showUpload = true">Ajouter cours</button>
           <button class="ghost" @click="fetchCourses" :disabled="isLoading">Actualiser</button>
@@ -30,24 +32,14 @@
       <div v-if="showUpload" class="modal-backdrop">
         <div class="modal">
           <h3>Ajouter un cours via CSV</h3>
-          <div class="form-grid">
-            <label>
-              <span>Titre (optionnel si 3ème colonne)</span>
-              <input class="input" v-model="formTitre" placeholder="Titre du cours" />
-            </label>
-            <label>
-              <span>Description (optionnel)</span>
-              <textarea class="textarea" rows="3" v-model="formDescription" placeholder="Description du cours"></textarea>
-            </label>
-            <label>
-              <span>Thématique associée (optionnel)</span>
-              <input class="input" v-model="formThematique" placeholder="Nom de la thématique" />
-            </label>
-            <label>
-              <span>Fichier CSV</span>
-              <input class="input" type="file" accept=".csv,text/csv" @change="onFileChange" />
-            </label>
-          </div>
+          <p class="csv-hint">Format : <code>titre;description;module;description_module</code><br>
+            <span class="csv-hint-sub">La 4ème colonne (description du module) est requise uniquement si le module
+              n'existe pas encore.</span>
+          </p>
+          <label>
+            <span>Fichier CSV</span>
+            <input class="input" type="file" accept=".csv,text/csv" @change="onFileChange" />
+          </label>
           <div v-if="uploadError" class="error-bar" style="margin-top:10px;">{{ uploadError }}</div>
           <div class="card-actions" style="margin-top:16px;">
             <button class="ghost" @click="closeUpload" :disabled="uploading">Annuler</button>
@@ -326,7 +318,7 @@ h2 {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -339,7 +331,7 @@ h2 {
   max-width: 640px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   padding: 20px;
 }
 
@@ -482,7 +474,7 @@ h3 {
   font-weight: 600;
 }
 
-.courses-table td .small + .small {
+.courses-table td .small+.small {
   margin-left: 10px;
 }
 
@@ -539,9 +531,33 @@ h3 {
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
+.csv-hint {
+  font-size: 0.9rem;
+  color: #444;
+  background: #f4f5ff;
+  border: 1px solid #d8ddff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
 
+.csv-hint code {
+  font-family: monospace;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.csv-hint-sub {
+  font-size: 0.82rem;
+  color: #777;
+}
 </style>
