@@ -2,7 +2,7 @@
   <div class="home-container">
     <nav class="navbar">
       <div class="nav-content">
-        <h1>Factoscope</h1>
+        <h1>Factoscope - Éditeur de cours</h1>
         <div class="user-info">
           <span>Bienvenue, {{ userName }}</span>
           <button @click="handleLogout" class="logout-btn">Déconnexion</button>
