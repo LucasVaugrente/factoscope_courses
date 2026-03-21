@@ -18,7 +18,7 @@ class Cours(Base):
     id = Column(Integer, primary_key=True, index=True)
     titre = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
-    contenu = Column(String(255), nullable=False)
+    contenu = Column(Text, nullable=False)
     id_module = Column(Integer, ForeignKey("module.id", ondelete="CASCADE", onupdate="CASCADE"))
     
     # Relations

@@ -299,13 +299,14 @@ def create_page(page: schemas.PageCreate, db: Session = Depends(get_db)):
     return db_page
 
 @app.put("/api/pages/{page_id}", response_model=schemas.Page)
-def update_page(page_id: int, page: schemas.PageCreate, db: Session = Depends(get_db)):
+def update_page(page_id: int, page: schemas.PageUpdate, db: Session = Depends(get_db)):
     """Modifier une page existante"""
     db_page = db.query(models.Page).filter(models.Page.id == page_id).first()
     if not db_page:
         raise HTTPException(status_code=404, detail="Page non trouvée")
     
-    for key, value in page.dict().items():
+    update_data = page.dict(exclude_unset=True)
+    for key, value in update_data.items():
         setattr(db_page, key, value)
     
     db.commit()

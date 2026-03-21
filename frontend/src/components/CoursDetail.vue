@@ -74,7 +74,7 @@
                   <span class="page-icon">📄</span>
                   <h3>Modifier : {{ page.description || 'Aucune description' }}</h3>
                 </div>
-                
+
                 <div class="edit-form">
                   <label class="field">
                     <span>Description</span>
@@ -84,19 +84,18 @@
 
                   <label class="field">
                     <span>Contenu</span>
-                    <textarea v-model="editingForm.content" class="textarea" rows="5"
-                      placeholder="Contenu"></textarea>
+                    <textarea v-model="editingForm.content" class="textarea" rows="5" placeholder="Contenu"></textarea>
                   </label>
 
                   <label class="field">
-                    <span>Médias (URLs séparées par des "at")</span>
-                    <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des 'at' " />
+                    <span>Médias (URLs séparées par des @)</span>
+                    <input v-model="editingForm.medias" class="input" placeholder="URLs médias séparées par des @ " />
                   </label>
 
                   <div class="page-actions">
                     <UiButton variant="ghost" @click="cancelEdit" :disabled="isSaving">Annuler</UiButton>
                     <button class="danger" @click="deletePage(page.id)" :disabled="isSaving">Supprimer</button>
-                    <UiButton variant="primary" @click="savePage(page.id)" :disabled="isSaving">
+                    <UiButton variant="primary" @click="savePage(page.id)">
                       {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
                     </UiButton>
                   </div>
@@ -188,7 +187,7 @@
         </label>
 
         <label class="field">
-          <span>Médias (URLs séparées par des "at")</span>
+          <span>Médias (URLs séparées par des @)</span>
           <input v-model="newPageForm.medias" class="input" placeholder="https://.../image.jp@ https://.../video.mp4" />
         </label>
 
@@ -386,10 +385,9 @@
                 <input v-model="tatEditForm.reponse4" class="input" />
 
                 <label>Bonne réponse (1-4)</label>
-                <input type="number" min="1" max="4" v-model.number="tatEditForm.soluce"
-                  class="input" />
+                <input type="number" min="1" max="4" v-model.number="tatEditForm.soluce" class="input" />
 
-                
+
                 <div class="card-actions">
                   <UiButton variant="ghost" @click="cancelEditTAT">Annuler</UiButton>
                   <UiButton variant="primary" @click="saveEditTAT(q.id)">Enregistrer</UiButton>
@@ -417,7 +415,7 @@
                   </div>
                 </div>
 
-             
+
 
                 <div class="acc-actions">
                   <UiButton variant="ghost" @click="startEditTAT(q)">✏️ Modifier</UiButton>
@@ -1007,19 +1005,15 @@ const createPage = async () => {
 
 const startEdit = (page) => {
   editingPageId.value = page.id
-  editingForm.value = { 
-    description: page.description || '', 
-    content: page.content || '', 
-    medias: page.medias || '' 
+  editingForm.value = {
+    description: page.description || '',
+    content: page.content || '',
+    medias: page.medias || ''
   }
 }
 const cancelEdit = () => (editingPageId.value = null)
 
 const savePage = async (pageId) => {
-  if (!editingForm.value.description.trim()) {
-    error.value = 'La description est requise'
-    return
-  }
   isSaving.value = true
   error.value = ''
   successMessage.value = ''

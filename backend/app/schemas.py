@@ -48,6 +48,12 @@ class Page(PageBase):
     class Config:
         from_attributes = True
 
+class PageUpdate(BaseModel):
+    description: Optional[str] = None
+    content: Optional[str] = None
+    medias: Optional[str] = ""
+    est_vue: Optional[int] = 0
+    
 # Schémas pour QCM
 class QCMBase(BaseModel):
     question: str
