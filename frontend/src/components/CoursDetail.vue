@@ -285,6 +285,7 @@
         </div>
 
         <div class="card-actions" style="margin-top:16px;">
+          <button class="ghost_csv" @click="downloadQCMTemplate">⬇ Template CSV</button>
           <UiButton variant="ghost" @click="closeUploadQCM" :disabled="isUploadingQCM">Annuler</UiButton>
           <UiButton variant="primary" @click="submitQCMUpload" :disabled="!qcmFile || isUploadingQCM">
             {{ isUploadingQCM ? 'Import en cours...' : 'Importer' }}
@@ -447,6 +448,7 @@
           </div>
 
           <div class="modal-top-actions">
+            <button class="ghost_csv" @click="downloadQCMTemplate">⬇ Template CSV</button>
             <UiButton variant="ghost" @click="showUploadQCM = true">Importer CSV</UiButton>
             <button class="close-x" @click="closeQCMViewer">×</button>
           </div>
@@ -859,6 +861,20 @@ const saveEditClassement = async (id) => {
   } catch (e) {
     error.value = e.message || "Erreur modification question de classement"
   }
+}
+
+const downloadQCMTemplate = () => {
+  const content = [
+    'titre_chapitre',
+    'question;rep1;rep2;rep3;rep4;soluce',
+  ].join('\n')
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'template_qcm.csv'
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 // ---------- Helpers ----------
@@ -1550,7 +1566,7 @@ onMounted(async () => {
   border-radius: 10px;
   padding: 10px 14px;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: bold;
 }
 
 .danger:disabled {
@@ -1876,6 +1892,7 @@ onMounted(async () => {
   margin-top: 12px;
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 .modal-footer-lite {
@@ -1971,6 +1988,27 @@ onMounted(async () => {
   background: #e7fff1;
   color: #0a6b2b;
   border-color: #b6f2cb;
+}
+
+.ghost_csv {
+  background: #05e80540;
+  color: #1a7312;
+  border: 1.5px solid #35773c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: background .15s, border-color .15s;
+}
+
+.ghost_csv:hover {
+  background: #10af105f;
+}
+
+.ghost_csv:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }
 
 @keyframes slideInRight {

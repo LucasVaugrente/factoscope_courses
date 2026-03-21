@@ -47,6 +47,7 @@
               <p class="subtitle">{{ modules.length }} cours disponible(s)</p>
             </div>
             <div class="actions">
+              <button class="ghost_csv" @click="downloadCoursTemplate">⬇ Template CSV Cours</button>
               <button class="primary" @click="showUpload = true">+ Ajouter un chapitre</button>
               <button class="ghost" @click="fetchModules" :disabled="isLoading">Actualiser</button>
             </div>
@@ -241,6 +242,20 @@ const isLoadingChapitres = ref(false)
 const showUpload = ref(false)
 const uploading = ref(false)
 const selectedFile = ref(null)
+
+const downloadCoursTemplate = () => {
+  const content = [
+    'titre_chapitre;description_chapitre;titre_cours;description_cours',
+    'description_page1;contenu_page1;media1.png@media2.mp3@media3.mp4;titre_chapitre',
+  ].join('\n')
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'template_cours.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 // ────────────────────────── helpers ──────────────────────────
 const apiFetch = async (url, options = {}) => {
@@ -688,6 +703,27 @@ h2 {
 }
 
 .ghost:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.ghost_csv {
+  background: #05e80540;
+  color: #1a7312;
+  border: 1.5px solid #35773c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: background .15s, border-color .15s;
+}
+
+.ghost_csv:hover {
+  background: #10af105f;
+}
+
+.ghost_csv:disabled {
   opacity: .6;
   cursor: not-allowed;
 }
