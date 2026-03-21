@@ -21,16 +21,18 @@
       </div>
     </div>
 
-    <!-- Alerts -->
-    <div v-if="error" class="error-bar">
-      <span>{{ error }}</span>
-      <button class="close-x" @click="error = ''">×</button>
-    </div>
-
-    <div v-if="successMessage" class="success-bar">
-      <span>{{ successMessage }}</span>
-      <button class="close-x" @click="successMessage = ''">×</button>
-    </div>
+    <Teleport to="body">
+      <div class="toast-container">
+        <div v-if="error" class="toast toast-error">
+          <span>{{ error }}</span>
+          <button class="close-x" @click="error = ''">×</button>
+        </div>
+        <div v-if="successMessage" class="toast toast-success">
+          <span>{{ successMessage }}</span>
+          <button class="close-x" @click="successMessage = ''">×</button>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- Skeleton cours -->
     <div v-if="isLoadingCours && !cours" class="dashboard-grid">
@@ -1929,5 +1931,56 @@ onMounted(async () => {
     grid-template-columns: 1fr;
   }
 
+}
+
+/* Toast notifications */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: all;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+  animation: slideInRight .3s cubic-bezier(.22, .61, .36, 1) forwards;
+}
+
+.toast-error {
+  background: #ffe3e3;
+  color: #b00020;
+  border-color: #ffb3b3;
+}
+
+.toast-success {
+  background: #e7fff1;
+  color: #0a6b2b;
+  border-color: #b6f2cb;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 </style>
