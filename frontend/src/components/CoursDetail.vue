@@ -115,11 +115,11 @@
                 <div class="page-body">
                   <div v-if="page.description" class="field-group">
                     <span class="field-label">Description :</span>
-                    <p class="content-text">{{ page.description }}</p>
+                    <RichText :text="page.description" class="content-text" />
                   </div>
                   <div v-if="page.content" class="field-group">
                     <span class="field-label">Contenu :</span>
-                    <p class="content-text">{{ page.content }}</p>
+                    <RichText :text="page.content" class="content-text" />
                   </div>
                   <div v-if="page.medias" class="field-group">
                     <span class="field-label">Média :</span>
@@ -680,6 +680,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
 import UiButton from '@/components/UiButton.vue'
+import RichText from '@/components/RichText.vue'
 
 const router = useRouter()
 const route = useRoute()
