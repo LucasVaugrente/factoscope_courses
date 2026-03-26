@@ -161,12 +161,12 @@
           </div>
 
           <!-- Jeu à Classement -->
-          <div class="card game-card" @click="openClassementViewer">
+          <!-- <div class="card game-card" @click="openClassementViewer">
             <div class="card-icon">🏆</div>
             <h3>Jeu à Classement</h3>
             <p class="description">{{ classementQuestions.length }} question(s)</p>
             <p class="meta">Clique pour voir (liste déroulante)</p>
-          </div>
+          </div> -->
         </div>
       </div>
     </section>
@@ -223,11 +223,11 @@
             <div class="game-desc">4 réponses + bonne réponse</div>
           </button>
 
-          <button class="game-tile" @click="chooseGame('classement')">
+          <!-- <button class="game-tile" @click="chooseGame('classement')">
             <div class="game-emoji">🏆</div>
             <div class="game-title">Jeu à Classement</div>
             <div class="game-desc">Classer des éléments (texte/images)</div>
-          </button>
+          </button> -->
         </div>
 
         <div class="card-actions" style="margin-top:16px;">
@@ -256,6 +256,7 @@
         </div>
 
         <div class="card-actions" style="margin-top:16px;">
+          <button class="ghost_csv" @click="downloadTexte_a_trouTemplate">⬇ Template CSV</button>
           <UiButton variant="ghost" @click="closeUploadTAT" :disabled="isUploadingTAT">Annuler</UiButton>
           <UiButton variant="primary" @click="submitTATUpload" :disabled="!tatFile || isUploadingTAT">
             {{ isUploadingTAT ? 'Import en cours...' : 'Importer' }}
@@ -338,6 +339,7 @@
           </div>
 
           <div class="modal-top-actions">
+            <button class="ghost_csv" @click="downloadTexte_a_trouTemplate">⬇ Template CSV</button>
             <UiButton variant="ghost" @click="showUploadTAT = true">Importer CSV</UiButton>
             <button class="close-x" @click="closeTATViewer">×</button>
           </div>
@@ -866,13 +868,27 @@ const saveEditClassement = async (id) => {
 const downloadQCMTemplate = () => {
   const content = [
     'titre_chapitre',
-    'question;rep1;rep2;rep3;rep4;soluce',
+    'question;reponse1;reponse2;reponse3;reponse4;numero_bonne_reponse',
   ].join('\n')
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = 'template_qcm.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+const downloadTexte_a_trouTemplate = () => {
+  const content = [
+    'titre_chapitre',
+    'question;reponse1;reponse2;reponse3;reponse4;numero_bonne_reponse',
+  ].join('\n')
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'template_texte_a_trous.csv'
   a.click()
   URL.revokeObjectURL(url)
 }
