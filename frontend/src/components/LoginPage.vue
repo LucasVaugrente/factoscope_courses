@@ -36,9 +36,6 @@ const isLoading = ref(false)
 const handleLogin = async () => {
   errorMessage.value = ''
   isLoading.value = true
-
-  console.log(import.meta.env.VITE_API_URL);
-
   try {
     const response = await fetch(import.meta.env.VITE_API_URL + '/api/login', {
       method: 'POST',
@@ -70,10 +67,6 @@ const handleLogin = async () => {
   }
 }
 
-const showSignup = () => {
-  // TODO: Implémenter la page d'inscription
-  console.log('Afficher la page d\'inscription')
-}
 </script>
 
 <style scoped>
