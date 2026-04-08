@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 import csv
 import io
+import os
 
 # Import des routeurs
 from .routes import text_a_trou, qcm, jeu_classement
@@ -21,7 +22,7 @@ app = FastAPI()
 # Configuration CORS pour permettre les requêtes du frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "https://app.factoscope.fr"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,10 +33,8 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-# Données temporaires (à remplacer par une vraie base de données)
-users_db = {
-    "password": "admin123", "name": "Administrateur"
-}
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 @app.get("/")
 def read_root():
@@ -43,7 +42,7 @@ def read_root():
 
 @app.post("/api/login")
 def login(credentials: LoginRequest):
-    if credentials.username != users_db["name"] or credentials.password != users_db["password"]:
+    if credentials.username != ADMIN_USERNAME or credentials.password != ADMIN_PASSWORD:
         raise HTTPException(status_code=401, detail="Identifiants incorrects")
     
     # Dans un vrai projet, générer un vrai token JWT

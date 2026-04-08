@@ -5,24 +5,12 @@
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="username">Nom d'utilisateur</label>
-          <input
-            type="text"
-            id="username"
-            v-model="username"
-            placeholder="Entrez votre nom d'utilisateur"
-            required
-          />
+          <input type="text" id="username" v-model="username" placeholder="Entrez votre nom d'utilisateur" required />
         </div>
-        
+
         <div class="form-group">
           <label for="password">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            placeholder="Entrez votre mot de passe"
-            required
-          />
+          <input type="password" id="password" v-model="password" placeholder="Entrez votre mot de passe" required />
         </div>
 
         <div v-if="errorMessage" class="error-message">
@@ -33,10 +21,6 @@
           {{ isLoading ? 'Connexion...' : 'Se connecter' }}
         </button>
       </form>
-
-      <div class="signup-link">
-        <p>Pas encore de compte ? <a href="#" @click.prevent="showSignup">Créer un compte</a></p>
-      </div>
     </div>
   </div>
 </template>
@@ -53,8 +37,10 @@ const handleLogin = async () => {
   errorMessage.value = ''
   isLoading.value = true
 
+  console.log(import.meta.env.VITE_API_URL);
+
   try {
-    const response = await fetch('http://localhost:8000/api/login', {
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

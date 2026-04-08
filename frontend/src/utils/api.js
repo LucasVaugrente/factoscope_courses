@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Création d'une instance Axios personnalisée
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -31,28 +31,28 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config
-    
+
     // Si l'erreur est 401 (non autorisé) et que ce n'est pas une tentative de rafraîchissement
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      
+
       try {
         // Tentative de rafraîchissement du token
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/refresh`,
+          `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
           {},
           { withCredentials: true }
         )
-        
+
         const { token } = response.data
-        
+
         // Mise à jour du token dans le localStorage
         localStorage.setItem('token', token)
-        
+
         // Mise à jour de l'en-tête d'autorisation
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`
         originalRequest.headers['Authorization'] = `Bearer ${token}`
-        
+
         // Renouvellement de la requête originale
         return api(originalRequest)
       } catch (error) {
@@ -63,7 +63,7 @@ api.interceptors.response.use(
         return Promise.reject(error)
       }
     }
-    
+
     return Promise.reject(error)
   }
 )

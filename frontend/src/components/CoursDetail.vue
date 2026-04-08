@@ -688,7 +688,7 @@ import RichText from '@/components/RichText.vue'
 
 const router = useRouter()
 const route = useRoute()
-const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const apiBase = import.meta.env.VITE_API_URL
 
 const userName = ref(localStorage.getItem('userName') || 'Utilisateur')
 
